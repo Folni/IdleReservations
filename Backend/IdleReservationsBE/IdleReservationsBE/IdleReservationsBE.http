@@ -1,0 +1,6 @@
+@IdleReservationsBE_HostAddress = http://localhost:5218
+
+GET {{IdleReservationsBE_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
