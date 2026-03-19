@@ -24,7 +24,7 @@ namespace IdleReservationsBE.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(NotificationCreateDto dto)
+        public IActionResult Create([FromBody] NotificationCreateDto dto)
         {
             _service.Create(dto);
             return Ok("Notification created");

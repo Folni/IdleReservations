@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | IdleReservations</title>
+  <script src="./js/links.js"></script>
+</head>
+<body>
+  <div id="nav"></div>
+
+  <main class="admin-page">
+    <section class="page-hero">
+      <div class="container py-5">
+        <p class="section-kicker">ADMIN PANEL</p>
+        <h1 class="page-title">Upravljanje sustavom</h1>
+        <p class="page-subtitle">
+          Pregled i upravljanje rezervacijama, restoranima i stolovima kroz administratorsko sučelje.
+        </p>
+      </div>
+    </section>
+
+    <section class="py-4">
+      <div class="container">
+        <div class="admin-toolbar mb-4">
+          <button class="btn btn-primary-custom" id="add-reservation-btn">
+            Nova rezervacija
+          </button>
+        </div>
+
+        <div id="admin-content"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script type="module" src="./js/pages/adminPage.js"></script>
+</body>
+</html>

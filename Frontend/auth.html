@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prijava i registracija | IdleReservations</title>
+  <script src="./js/links.js"></script>
+</head>
+<body>
+  <div id="nav"></div>
+
+  <main class="auth-page">
+    <section class="page-hero">
+      <div class="container py-5">
+        <p class="section-kicker">KORISNIČKI RAČUN</p>
+        <h1 class="page-title">Prijava i registracija</h1>
+        <p class="page-subtitle">
+          Prijavi se u sustav ili izradi novi korisnički račun za korištenje rezervacija.
+        </p>
+      </div>
+    </section>
+
+    <section class="py-5">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-lg-6">
+            <div class="auth-card">
+              <h2 class="auth-card-title">Prijava</h2>
+
+              <form id="login-form" class="auth-form">
+                <div class="mb-3">
+                  <label for="login-username" class="form-label">Korisničko ime</label>
+                  <input type="text" id="login-username" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                  <label for="login-password" class="form-label">Lozinka</label>
+                  <input type="password" id="login-password" class="form-control" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary-custom w-100">
+                  Prijavi se
+                </button>
+              </form>
+
+              <div id="login-message" class="form-message mt-3"></div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="auth-card">
+              <h2 class="auth-card-title">Registracija</h2>
+
+              <form id="register-form" class="auth-form">
+                <div class="mb-3">
+                  <label for="register-username" class="form-label">Korisničko ime</label>
+                  <input type="text" id="register-username" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                  <label for="register-email" class="form-label">Email</label>
+                  <input type="email" id="register-email" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                  <label for="register-password" class="form-label">Lozinka</label>
+                  <input type="password" id="register-password" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                  <label for="register-firstname" class="form-label">Ime</label>
+                  <input type="text" id="register-firstname" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                  <label for="register-lastname" class="form-label">Prezime</label>
+                  <input type="text" id="register-lastname" class="form-control" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary-custom w-100">
+                  Registriraj se
+                </button>
+              </form>
+
+              <div id="register-message" class="form-message mt-3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script type="module" src="./js/pages/authPage.js"></script>
+</body>
+</html>

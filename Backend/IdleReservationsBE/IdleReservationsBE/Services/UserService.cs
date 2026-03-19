@@ -62,6 +62,7 @@
             return JwtTokenProvider.CreateToken(
                 key,
                 120,
+                user.UserId,
                 user.Username,
                 user.Role.RoleName
             );

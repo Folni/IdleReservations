@@ -1,0 +1,21 @@
+.page-hero {
+  background:
+    radial-gradient(circle at top right, rgba(30, 200, 232, 0.06), transparent 25%),
+    radial-gradient(circle at top left, rgba(138, 43, 226, 0.05), transparent 25%),
+    var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+
+.reservations-table thead th {
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.reservations-table tbody td {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-color: #ececec;
+}

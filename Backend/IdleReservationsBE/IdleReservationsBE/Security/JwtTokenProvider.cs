@@ -7,15 +7,17 @@ namespace LocalMarketAPI.Security
 {
     public static class JwtTokenProvider
     {
-        public static string CreateToken(string secureKey, int expiration, string subject = null, string role = null)
+        public static string CreateToken(
+            string secureKey,
+            int expiration,
+            int? userId = null,
+            string subject = null,
+            string role = null)
         {
-            // Get secret key bytes
             var tokenKey = Encoding.UTF8.GetBytes(secureKey);
 
-            // Create a token descriptor (represents a token, kind of a "template" for token)
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-
                 Expires = DateTime.UtcNow.AddMinutes(expiration),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(tokenKey),
@@ -23,6 +25,12 @@ namespace LocalMarketAPI.Security
             };
 
             List<Claim> claims = new();
+
+            if (userId.HasValue)
+            {
+                claims.Add(new Claim(ClaimTypes.NameIdentifier, userId.Value.ToString()));
+                claims.Add(new Claim("userId", userId.Value.ToString()));
+            }
 
             if (!string.IsNullOrEmpty(subject))
             {
@@ -37,7 +45,6 @@ namespace LocalMarketAPI.Security
 
             tokenDescriptor.Subject = new ClaimsIdentity(claims);
 
-            // Create token using that descriptor, serialize it and return it
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var serializedToken = tokenHandler.WriteToken(token);

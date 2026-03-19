@@ -1,6 +1,5 @@
 ﻿namespace IdleReservationsBE.Repositories
 {
-    
     using IdleReservationsBE.Interfaces;
     using IdleReservationsBE.Models;
     using Microsoft.EntityFrameworkCore;
@@ -16,17 +15,28 @@
 
         public IEnumerable<Reservation> GetAll()
         {
-            return _context.Reservations.ToList();
+            return _context.Reservations
+                .Include(x => x.User)
+                .Include(x => x.Restaurant)
+                .Include(x => x.Table)
+                .ToList();
         }
 
         public Reservation GetById(int id)
         {
-            return _context.Reservations.FirstOrDefault(x => x.ReservationId == id);
+            return _context.Reservations
+                .Include(x => x.User)
+                .Include(x => x.Restaurant)
+                .Include(x => x.Table)
+                .FirstOrDefault(x => x.ReservationId == id);
         }
 
         public IEnumerable<Reservation> GetByRestaurant(int restaurantId)
         {
             return _context.Reservations
+                .Include(x => x.User)
+                .Include(x => x.Restaurant)
+                .Include(x => x.Table)
                 .Where(x => x.RestaurantId == restaurantId)
                 .ToList();
         }
@@ -34,6 +44,9 @@
         public IEnumerable<Reservation> GetByTable(int tableId)
         {
             return _context.Reservations
+                .Include(x => x.User)
+                .Include(x => x.Restaurant)
+                .Include(x => x.Table)
                 .Where(x => x.TableId == tableId)
                 .ToList();
         }
@@ -58,5 +71,4 @@
             _context.SaveChanges();
         }
     }
-
 }

@@ -1,0 +1,41 @@
+.hero-kicker,
+.section-kicker {
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.hero-title {
+  font-size: clamp(2.5rem, 6vw, 4.8rem);
+  line-height: 0.95;
+  margin-bottom: 1.2rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.hero-subtitle,
+.section-text,
+.feature-card p,
+.cta-box p,
+.custom-list li,
+.page-subtitle {
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.section-header h2,
+.mockup-section h2,
+.cta-box h2 {
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  margin-bottom: 1rem;
+  font-weight: 800;
+}
+
+.page-title {
+  font-size: clamp(2rem, 4vw, 3.6rem);
+  font-weight: 800;
+  margin-bottom: 1rem;
+}

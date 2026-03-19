@@ -1,0 +1,49 @@
+.profile-page {
+  min-height: 100vh;
+}
+
+.profile-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  padding: 2rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
+  height: 100%;
+}
+
+.profile-card-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+}
+
+.profile-info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.profile-label {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.profile-value {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.form-message {
+  min-height: 24px;
+  font-weight: 600;
+}
+
+.form-message.success {
+  color: #198754;
+}
+
+.form-message.error {
+  color: #dc3545;
+}

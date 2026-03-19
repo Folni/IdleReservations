@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lokacije | IdleReservations</title>
+  <script src="./js/links.js"></script>
+</head>
+<body>
+  <div id="nav"></div>
+
+  <main class="locations-page">
+    <section class="page-hero">
+      <div class="container py-5">
+        <p class="section-kicker">LOKACIJE</p>
+        <h1 class="page-title">Naši restorani</h1>
+        <p class="page-subtitle">
+          Pregled lokacija restorana, radnog vremena i navigacije putem Google Maps.
+        </p>
+      </div>
+    </section>
+
+    <section class="py-4">
+      <div class="container">
+        <div class="card p-3 mb-4">
+          <div id="locations-list" class="row g-3"></div>
+        </div>
+
+        <div class="card p-3">
+          <div id="map" style="width: 100%; height: 520px; border-radius: 12px;"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div
+  class="modal fade"
+  id="createReservationModal"
+  tabindex="-1"
+  aria-labelledby="createReservationModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="create-reservation-form">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createReservationModalLabel">Nova rezervacija</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zatvori"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="reservation-restaurant-id" class="form-label">Restoran</label>
+            <select class="form-select" id="reservation-restaurant-id" required>
+              <option value="">Odaberi restoran</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="reservation-table-id" class="form-label">Stol</label>
+            <select class="form-select" id="reservation-table-id" required>
+              <option value="">Prvo odaberi restoran</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="reservation-datetime" class="form-label">Datum i vrijeme</label>
+            <input type="datetime-local" class="form-control" id="reservation-datetime" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="reservation-party-size" class="form-label">Broj osoba</label>
+            <input type="number" class="form-control" id="reservation-party-size" min="1" max="20" required>
+          </div>
+
+          <div id="reservation-form-message"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Odustani</button>
+          <button type="submit" class="btn btn-primary-custom">Spremi rezervaciju</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+  <div id="footer"></div>
+
+  <script type="module" src="./js/pages/locationsPage.js"></script>
+  <script
+  async
+  defer
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAyfaiQ3jX_cLcFZxyd-N6B6qjpWeQrtxc">
+</script>
+</body>
+</html>

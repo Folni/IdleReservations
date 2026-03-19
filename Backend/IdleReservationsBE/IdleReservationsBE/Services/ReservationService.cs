@@ -1,10 +1,8 @@
 ﻿namespace IdleReservationsBE.Services
 {
-  
     using IdleReservationsBE.DTO;
     using IdleReservationsBE.Interfaces;
     using IdleReservationsBE.Models;
-    
 
     public class ReservationService : IReservationService
     {
@@ -31,8 +29,11 @@
             {
                 ReservationId = r.ReservationId,
                 UserId = r.UserId,
+                Username = r.User != null ? r.User.Username : null,
                 RestaurantId = r.RestaurantId,
+                RestaurantName = r.Restaurant != null ? r.Restaurant.Name : null,
                 TableId = r.TableId,
+                Seats = r.Table != null ? r.Table.Seats : 0,
                 ReservationDateTime = r.ReservationDateTime,
                 PartySize = r.PartySize,
                 Status = r.Status
@@ -49,8 +50,11 @@
             {
                 ReservationId = r.ReservationId,
                 UserId = r.UserId,
+                Username = r.User != null ? r.User.Username : null,
                 RestaurantId = r.RestaurantId,
+                RestaurantName = r.Restaurant != null ? r.Restaurant.Name : null,
                 TableId = r.TableId,
+                Seats = r.Table != null ? r.Table.Seats : 0,
                 ReservationDateTime = r.ReservationDateTime,
                 PartySize = r.PartySize,
                 Status = r.Status
@@ -59,17 +63,14 @@
 
         public void Create(ReservationCreateDto dto)
         {
-            // Check user
             var user = _userRepo.GetById(dto.UserId);
             if (user == null)
                 throw new Exception("User does not exist");
 
-            // Check restaurant
             var restaurant = _restaurantRepo.GetById(dto.RestaurantId);
             if (restaurant == null)
                 throw new Exception("Restaurant does not exist");
 
-            // Check table
             var table = _tableRepo.GetById(dto.TableId);
             if (table == null)
                 throw new Exception("Table does not exist");
@@ -77,7 +78,6 @@
             if (table.RestaurantId != dto.RestaurantId)
                 throw new Exception("Table does not belong to this restaurant");
 
-            // Check if table is free at that time
             var reservations = _repo.GetByTable(dto.TableId);
 
             bool isTaken = reservations.Any(r =>
@@ -102,6 +102,59 @@
             _repo.Save();
         }
 
+        public void Update(int id, ReservationCreateDto dto)
+        {
+            var reservation = _repo.GetById(id);
+            if (reservation == null)
+                throw new Exception("Reservation not found");
+
+            var user = _userRepo.GetById(dto.UserId);
+            if (user == null)
+                throw new Exception("User does not exist");
+
+            var restaurant = _restaurantRepo.GetById(dto.RestaurantId);
+            if (restaurant == null)
+                throw new Exception("Restaurant does not exist");
+
+            var table = _tableRepo.GetById(dto.TableId);
+            if (table == null)
+                throw new Exception("Table does not exist");
+
+            if (table.RestaurantId != dto.RestaurantId)
+                throw new Exception("Table does not belong to this restaurant");
+
+            var reservations = _repo.GetByTable(dto.TableId);
+
+            bool isTaken = reservations.Any(r =>
+                r.ReservationId != id &&
+                r.ReservationDateTime == dto.ReservationDateTime &&
+                r.Status == "Active"
+            );
+
+            if (isTaken)
+                throw new Exception("Table is already reserved at that time");
+
+            reservation.UserId = dto.UserId;
+            reservation.RestaurantId = dto.RestaurantId;
+            reservation.TableId = dto.TableId;
+            reservation.ReservationDateTime = dto.ReservationDateTime;
+            reservation.PartySize = dto.PartySize;
+
+            _repo.Update(reservation);
+            _repo.Save();
+        }
+
+        public void UpdateStatus(int id, string status)
+        {
+            var reservation = _repo.GetById(id);
+            if (reservation == null)
+                throw new Exception("Reservation not found");
+
+            reservation.Status = status;
+            _repo.Update(reservation);
+            _repo.Save();
+        }
+
         public void Cancel(int id)
         {
             var r = _repo.GetById(id);
@@ -114,5 +167,4 @@
             _repo.Save();
         }
     }
-
 }

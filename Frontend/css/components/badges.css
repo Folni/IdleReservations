@@ -1,0 +1,39 @@
+.feature-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+}
+
+.dot-cyan { background: var(--cyan); }
+.dot-blue { background: var(--blue); }
+.dot-purple { background: var(--purple); }
+
+.status-badge {
+  display: inline-block;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.status-confirmed {
+  background: rgba(25, 135, 84, 0.12);
+  color: #198754;
+}
+
+.status-pending {
+  background: rgba(255, 193, 7, 0.16);
+  color: #9a6b00;
+}
+
+.status-cancelled {
+  background: rgba(220, 53, 69, 0.12);
+  color: #dc3545;
+}
+
+.status-default {
+  background: rgba(108, 117, 125, 0.12);
+  color: #6c757d;
+}

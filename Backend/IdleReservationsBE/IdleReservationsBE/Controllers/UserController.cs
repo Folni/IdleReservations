@@ -18,32 +18,31 @@ namespace IdleReservationsBE.Controllers
         }
 
         [HttpPost("register")]
-        public IActionResult Register(UserRegisterDto dto)
+        public IActionResult Register([FromBody] UserRegisterDto dto)
         {
             var result = _service.Register(dto);
             return Ok(result);
         }
 
         [HttpPost("login")]
-        public IActionResult Login(UserLoginDto dto)
+        public IActionResult Login([FromBody] UserLoginDto dto)
         {
             var token = _service.Login(dto);
             return Ok(token);
         }
 
         [HttpPost("change-password")]
-        public IActionResult ChangePassword(UserChangePasswordDto dto)
+        public IActionResult ChangePassword([FromBody] UserChangePasswordDto dto)
         {
             _service.ChangePassword(dto);
             return Ok("Password changed");
         }
 
         [HttpPost("promote")]
-        public IActionResult Promote(UserPromoteDto dto)
+        public IActionResult Promote([FromBody] UserPromoteDto dto)
         {
             _service.PromoteUser(dto);
             return Ok("User promoted");
         }
     }
-
 }

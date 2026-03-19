@@ -1,0 +1,39 @@
+.custom-navbar {
+  background: #1f252c;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.custom-brand,
+.custom-link {
+  color: #f5f5f5 !important;
+}
+
+.custom-link {
+  opacity: 0.85;
+}
+
+.custom-link:hover {
+  opacity: 1;
+  color: var(--cyan) !important;
+}
+
+.nav-user-label {
+  color: #f5f5f5;
+  opacity: 0.95;
+  cursor: default;
+  user-select: none;
+  margin-bottom: 0;
+}
+
+.nav-logout-btn {
+  background: transparent;
+  border: none;
+  color: #f5f5f5;
+  opacity: 0.85;
+  padding: 0.5rem 1rem;
+}
+
+.nav-logout-btn:hover {
+  opacity: 1;
+  color: var(--cyan);
+}

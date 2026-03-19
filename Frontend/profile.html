@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil | IdleReservations</title>
+  <script src="./js/links.js"></script>
+</head>
+<body>
+  <div id="nav"></div>
+
+  <main class="profile-page">
+    <section class="page-hero">
+      <div class="container py-5">
+        <p class="section-kicker">KORISNIČKI PROFIL</p>
+        <h1 class="page-title">Moj profil</h1>
+        <p class="page-subtitle">
+          Pregled korisničkih podataka i promjena lozinke.
+        </p>
+      </div>
+    </section>
+
+    <section class="py-5">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-lg-5">
+            <div class="profile-card">
+              <h2 class="profile-card-title">Osnovni podaci</h2>
+
+              <div class="profile-info-row">
+                <span class="profile-label">Korisničko ime</span>
+                <span id="profile-username" class="profile-value">-</span>
+              </div>
+
+              <div class="profile-info-row">
+                <span class="profile-label">Uloga</span>
+                <span id="profile-role" class="profile-value">-</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-7">
+            <div class="profile-card">
+              <h2 class="profile-card-title">Promjena lozinke</h2>
+
+              <form id="change-password-form">
+                <div class="mb-3">
+                  <label for="new-password" class="form-label">Nova lozinka</label>
+                  <input
+                    type="password"
+                    id="new-password"
+                    class="form-control"
+                    minlength="8"
+                    required
+                  >
+                </div>
+
+                <button type="submit" class="btn btn-primary-custom">
+                  Promijeni lozinku
+                </button>
+              </form>
+
+              <div id="change-password-message" class="form-message mt-3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script type="module" src="./js/pages/profilePage.js"></script>
+</body>
+</html>

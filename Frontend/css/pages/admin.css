@@ -1,0 +1,8 @@
+.admin-page {
+  min-height: 100vh;
+}
+
+.admin-toolbar {
+  display: flex;
+  justify-content: flex-end;
+}

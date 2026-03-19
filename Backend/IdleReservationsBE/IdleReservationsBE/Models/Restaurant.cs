@@ -13,6 +13,12 @@ public partial class Restaurant
 
     public string? City { get; set; }
 
+    public double Latitude { get; set; }
+
+    public double Longitude { get; set; }
+
+    public string? WorkingHours { get; set; }
+
     public virtual ICollection<Promotion> Promotions { get; set; } = new List<Promotion>();
 
     public virtual ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();

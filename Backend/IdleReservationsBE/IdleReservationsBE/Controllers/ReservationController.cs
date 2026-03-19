@@ -36,6 +36,20 @@ namespace IdleReservationsBE.Controllers
             return Ok("Reservation created");
         }
 
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, ReservationCreateDto dto)
+        {
+            _service.Update(id, dto);
+            return Ok("Reservation updated");
+        }
+
+        [HttpPut("{id}/status")]
+        public IActionResult UpdateStatus(int id, ReservationStatusUpdateDto dto)
+        {
+            _service.UpdateStatus(id, dto.Status);
+            return Ok("Reservation status updated");
+        }
+
         [HttpPut("cancel/{id}")]
         public IActionResult Cancel(int id)
         {
@@ -43,5 +57,4 @@ namespace IdleReservationsBE.Controllers
             return Ok("Reservation cancelled");
         }
     }
-
 }

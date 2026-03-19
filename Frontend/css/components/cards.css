@@ -1,0 +1,67 @@
+.feature-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+}
+
+.feature-card h3 {
+  margin: 0 0 0.8rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.mockup-frame {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  padding: 1rem;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.05);
+}
+
+.cta-box {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  padding: 3rem 1.5rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
+}
+
+.reservations-card,
+.state-card,
+.empty-state-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  padding: 1.5rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
+}
+
+.reservations-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.reservations-count {
+  background: rgba(47, 124, 246, 0.08);
+  color: var(--blue);
+  border: 1px solid rgba(47, 124, 246, 0.14);
+  border-radius: 999px;
+  padding: 0.5rem 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.state-card,
+.empty-state-card {
+  text-align: center;
+  padding: 3rem 1.5rem;
+}
+
+.error-state h3 {
+  margin-bottom: 0.75rem;
+}
