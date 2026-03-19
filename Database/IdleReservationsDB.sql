@@ -103,3 +103,7 @@ VALUES (2, 1, 1, '2026-03-25 19:00', 2, 'confirmed');
 -- Example Notification
 INSERT INTO Notification (UserId, Title, Message)
 VALUES (2, 'Reservation Confirmed', 'Your reservation at Idle Central is confirmed.');
+
+
+ALTER TABLE Reservation
+ALTER COLUMN UserId INT NOT NULL;

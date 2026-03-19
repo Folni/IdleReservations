@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "E9ZuZGRD1inxlI4n42lNB4kVCwvGa5lp4dSUOYSOG1Q=",
+  "Source": "IdleReservationsBE",
+  "BasePath": "_content/IdleReservationsBE",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

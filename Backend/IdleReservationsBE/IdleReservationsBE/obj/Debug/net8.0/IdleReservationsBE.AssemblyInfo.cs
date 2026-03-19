@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("IdleReservationsBE")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+86a02704f643e4ed4ddfd4bb62caea7b0ca11005")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a7e9b37ffea0aea77465d0c739da6fac2749c354")]
 [assembly: System.Reflection.AssemblyProductAttribute("IdleReservationsBE")]
 [assembly: System.Reflection.AssemblyTitleAttribute("IdleReservationsBE")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
