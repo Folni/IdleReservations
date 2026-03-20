@@ -1,0 +1,23 @@
+.locations-layout {
+  align-items: stretch;
+}
+
+.locations-list-card,
+.locations-map-card {
+  height: 100%;
+}
+
+.locations-map {
+  width: 100%;
+  min-height: 720px;
+  height: 720px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+@media (max-width: 991.98px) {
+  .locations-map {
+    min-height: 420px;
+    height: 420px;
+  }
+}

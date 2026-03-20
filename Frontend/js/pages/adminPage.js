@@ -192,7 +192,19 @@ function renderReservationsTab(container) {
     })
     .join("");
 
-  const rows = state.reservations
+  const uniqueUsers = [...new Set(
+    state.reservations
+      .map((r) => r.username ?? r.userName ?? "")
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b));
+
+  const userOptions = uniqueUsers
+    .map((user) => `<option value="${escapeAttr(user)}">${escapeHtml(user)}</option>`)
+    .join("");
+
+  const filteredReservations = getFilteredReservations();
+
+  const rows = filteredReservations
     .map((r) => {
       const id = r.reservationId ?? r.id ?? "-";
       const userId = r.userId ?? "";
@@ -242,53 +254,103 @@ function renderReservationsTab(container) {
     .join("");
 
   container.innerHTML = `
-    <div class="card p-4 mb-4">
-      <h3 class="mb-3">Uredi rezervaciju</h3>
+    <div class="row g-4 mb-4">
+      <div class="col-lg-7">
+        <div class="card p-4 h-100">
+          <h3 class="mb-3">Uredi rezervaciju</h3>
 
-      <form id="reservation-form" class="row g-3">
-        <input type="hidden" id="reservation-id" />
-        <input type="hidden" id="reservation-user-id" />
+          <form id="reservation-form" class="row g-3">
+            <input type="hidden" id="reservation-id" />
+            <input type="hidden" id="reservation-user-id" />
 
-        <div class="col-md-4">
-          <label class="form-label">Restoran</label>
-          <select class="form-select" id="reservation-restaurant-id" required>
-            <option value="">Odaberi restoran</option>
-            ${restaurantOptions}
-          </select>
+            <div class="col-md-6">
+              <label class="form-label">Restoran</label>
+              <select class="form-select" id="reservation-restaurant-id" required>
+                <option value="">Odaberi restoran</option>
+                ${restaurantOptions}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Stol</label>
+              <select class="form-select" id="reservation-table-id" required>
+                <option value="">Odaberi stol</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Datum i vrijeme</label>
+              <input type="datetime-local" class="form-control" id="reservation-datetime" required />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Broj osoba</label>
+              <input type="number" class="form-control" id="reservation-party-size" min="1" max="20" required />
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+              <button type="submit" class="btn btn-primary-custom">Spremi</button>
+              <button type="button" class="btn btn-secondary" id="reservation-reset-btn">Reset</button>
+            </div>
+          </form>
         </div>
+      </div>
 
-        <div class="col-md-4">
-          <label class="form-label">Stol</label>
-          <select class="form-select" id="reservation-table-id" required>
-            <option value="">Odaberi stol</option>
-          </select>
-        </div>
+      <div class="col-lg-5">
+        <div class="card p-4 h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">Filter</h3>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="reservation-filters-reset-btn">
+              Reset
+            </button>
+          </div>
 
-        <div class="col-md-4">
-          <label class="form-label">Datum i vrijeme</label>
-          <input type="datetime-local" class="form-control" id="reservation-datetime" required />
-        </div>
+          <form id="reservation-filter-form" class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Korisnik</label>
+              <select class="form-select" id="reservation-filter-user">
+                <option value="">Svi korisnici</option>
+                ${userOptions}
+              </select>
+            </div>
 
-        <div class="col-md-4">
-          <label class="form-label">Broj osoba</label>
-          <input type="number" class="form-control" id="reservation-party-size" min="1" max="20" required />
-        </div>
+            <div class="col-12">
+              <label class="form-label">Restoran</label>
+              <select class="form-select" id="reservation-filter-restaurant">
+                <option value="">Svi restorani</option>
+                ${restaurantOptions}
+              </select>
+            </div>
 
-        <div class="col-12 d-flex gap-2">
-          <button type="submit" class="btn btn-primary-custom">Spremi</button>
-          <button type="button" class="btn btn-secondary" id="reservation-reset-btn">Reset</button>
+            <div class="col-12">
+              <label class="form-label">Status</label>
+              <select class="form-select" id="reservation-filter-status">
+                <option value="">Svi statusi</option>
+                <option value="active">Active</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="pending">Pending</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Datum</label>
+              <input type="date" class="form-control" id="reservation-filter-date" />
+            </div>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
 
     <div class="card p-4">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h3>Upravljanje rezervacijama</h3>
+        <span class="badge text-bg-light">${filteredReservations.length} rezultata</span>
       </div>
 
       ${
-        state.reservations.length === 0
-          ? `<p>Nema rezervacija.</p>`
+        filteredReservations.length === 0
+          ? `<p>Nema rezervacija za odabrane filtere.</p>`
           : `
             <div class="table-responsive">
               <table class="table table-striped align-middle">
@@ -314,6 +376,14 @@ function renderReservationsTab(container) {
   document.getElementById("reservation-form")?.addEventListener("submit", handleReservationSubmit);
   document.getElementById("reservation-reset-btn")?.addEventListener("click", resetReservationForm);
   document.getElementById("reservation-restaurant-id")?.addEventListener("change", handleReservationRestaurantChange);
+
+  document.getElementById("reservation-filter-user")?.addEventListener("change", renderActiveTab);
+  document.getElementById("reservation-filter-restaurant")?.addEventListener("change", renderActiveTab);
+  document.getElementById("reservation-filter-status")?.addEventListener("change", renderActiveTab);
+  document.getElementById("reservation-filter-date")?.addEventListener("change", renderActiveTab);
+  document.getElementById("reservation-filters-reset-btn")?.addEventListener("click", resetReservationFilters);
+
+  restoreReservationFilterValues();
 
   container.querySelectorAll(".edit-reservation-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -373,18 +443,27 @@ function renderRestaurantsTab(container) {
       const name = r.name ?? "";
       const address = r.address ?? "";
       const city = r.city ?? "";
+      const latitude = r.latitude ?? "";
+      const longitude = r.longitude ?? "";
+      const workingHours = r.workingHours ?? "";
 
       return `
         <tr>
           <td>${escapeHtml(name)}</td>
           <td>${escapeHtml(address)}</td>
           <td>${escapeHtml(city)}</td>
+          <td>${escapeHtml(String(latitude))}</td>
+          <td>${escapeHtml(String(longitude))}</td>
+          <td>${escapeHtml(workingHours)}</td>
           <td class="d-flex gap-2">
             <button class="btn btn-sm btn-warning edit-restaurant-btn"
               data-id="${id}"
               data-name="${escapeAttr(name)}"
               data-address="${escapeAttr(address)}"
-              data-city="${escapeAttr(city)}">
+              data-city="${escapeAttr(city)}"
+              data-latitude="${escapeAttr(String(latitude))}"
+              data-longitude="${escapeAttr(String(longitude))}"
+              data-workinghours="${escapeAttr(workingHours)}">
               Uredi
             </button>
             <button class="btn btn-sm btn-danger delete-restaurant-btn" data-id="${id}">
@@ -397,32 +476,63 @@ function renderRestaurantsTab(container) {
     .join("");
 
   container.innerHTML = `
-    <div class="card p-4 mb-4">
-      <h3 class="mb-3">Dodaj / uredi restoran</h3>
+    <div class="row g-4 mb-4">
+      <div class="col-lg-7">
+        <div class="card p-4 h-100">
+          <h3 class="mb-3">Dodaj / uredi restoran</h3>
 
-      <form id="restaurant-form" class="row g-3">
-        <input type="hidden" id="restaurant-id" />
+          <form id="restaurant-form" class="row g-3">
+            <input type="hidden" id="restaurant-id" />
+            <input type="hidden" id="restaurant-latitude" />
+            <input type="hidden" id="restaurant-longitude" />
 
-        <div class="col-md-4">
-          <label class="form-label">Naziv</label>
-          <input type="text" class="form-control" id="restaurant-name" required />
+            <div class="col-md-6">
+              <label class="form-label">Naziv</label>
+              <input type="text" class="form-control" id="restaurant-name" required />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Grad</label>
+              <input type="text" class="form-control" id="restaurant-city" required />
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Adresa</label>
+              <input type="text" class="form-control" id="restaurant-address" required />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Radno vrijeme</label>
+              <input type="text" class="form-control" id="restaurant-working-hours" placeholder="08:00 - 23:00" />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Latitude</label>
+              <input type="text" class="form-control" id="restaurant-latitude-preview" readonly />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Longitude</label>
+              <input type="text" class="form-control" id="restaurant-longitude-preview" readonly />
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+              <button type="submit" class="btn btn-primary-custom">Spremi</button>
+              <button type="button" class="btn btn-secondary" id="restaurant-reset-btn">Reset</button>
+            </div>
+          </form>
         </div>
+      </div>
 
-        <div class="col-md-4">
-          <label class="form-label">Adresa</label>
-          <input type="text" class="form-control" id="restaurant-address" required />
+      <div class="col-lg-5">
+        <div class="card p-4 h-100">
+          <h3 class="mb-3">Odaberi lokaciju na karti</h3>
+          <div id="restaurant-admin-map" style="width: 100%; height: 420px; border-radius: 12px;"></div>
+          <small class="text-muted mt-2 d-block">
+            Klikni na kartu za automatsko popunjavanje adrese, grada i koordinata.
+          </small>
         </div>
-
-        <div class="col-md-4">
-          <label class="form-label">Grad</label>
-          <input type="text" class="form-control" id="restaurant-city" required />
-        </div>
-
-        <div class="col-12 d-flex gap-2">
-          <button type="submit" class="btn btn-primary-custom">Spremi</button>
-          <button type="button" class="btn btn-secondary" id="restaurant-reset-btn">Reset</button>
-        </div>
-      </form>
+      </div>
     </div>
 
     <div class="card p-4">
@@ -439,6 +549,9 @@ function renderRestaurantsTab(container) {
                     <th>Naziv</th>
                     <th>Adresa</th>
                     <th>Grad</th>
+                    <th>Lat</th>
+                    <th>Lng</th>
+                    <th>Radno vrijeme</th>
                     <th>Akcije</th>
                   </tr>
                 </thead>
@@ -462,6 +575,15 @@ function renderRestaurantsTab(container) {
       document.getElementById("restaurant-name").value = btn.dataset.name;
       document.getElementById("restaurant-address").value = btn.dataset.address;
       document.getElementById("restaurant-city").value = btn.dataset.city;
+      document.getElementById("restaurant-latitude").value = btn.dataset.latitude;
+      document.getElementById("restaurant-longitude").value = btn.dataset.longitude;
+      document.getElementById("restaurant-latitude-preview").value = btn.dataset.latitude;
+      document.getElementById("restaurant-longitude-preview").value = btn.dataset.longitude;
+      document.getElementById("restaurant-working-hours").value = btn.dataset.workinghours;
+
+      if (typeof initRestaurantAdminMap === "function") {
+        initRestaurantAdminMap(Number(btn.dataset.latitude), Number(btn.dataset.longitude));
+      }
     });
   });
 
@@ -481,6 +603,8 @@ function renderRestaurantsTab(container) {
       }
     });
   });
+
+  initializeRestaurantAdminMap();
 }
 
 async function handleRestaurantSubmit(e) {
@@ -490,6 +614,9 @@ async function handleRestaurantSubmit(e) {
   const name = document.getElementById("restaurant-name").value.trim();
   const address = document.getElementById("restaurant-address").value.trim();
   const city = document.getElementById("restaurant-city").value.trim();
+  const latitude = document.getElementById("restaurant-latitude").value.trim();
+  const longitude = document.getElementById("restaurant-longitude").value.trim();
+  const workingHours = document.getElementById("restaurant-working-hours").value.trim();
 
   if (!name || name.length < 2) {
     notify("Naziv restorana mora imati barem 2 znaka", "error");
@@ -506,7 +633,19 @@ async function handleRestaurantSubmit(e) {
     return;
   }
 
-  const payload = { name, address, city };
+  if (!latitude || !longitude) {
+    notify("Odaberi lokaciju restorana na karti", "error");
+    return;
+  }
+
+  const payload = {
+    name,
+    address,
+    city,
+    latitude: Number(latitude),
+    longitude: Number(longitude),
+    workingHours,
+  };
 
   try {
     if (id) {
@@ -530,6 +669,15 @@ function resetRestaurantForm() {
   document.getElementById("restaurant-name").value = "";
   document.getElementById("restaurant-address").value = "";
   document.getElementById("restaurant-city").value = "";
+  document.getElementById("restaurant-latitude").value = "";
+  document.getElementById("restaurant-longitude").value = "";
+  document.getElementById("restaurant-latitude-preview").value = "";
+  document.getElementById("restaurant-longitude-preview").value = "";
+  document.getElementById("restaurant-working-hours").value = "";
+
+  if (typeof initRestaurantAdminMap === "function") {
+    initRestaurantAdminMap();
+  }
 }
 
 async function refreshRestaurants() {
@@ -554,7 +702,19 @@ function renderTablesTab(container) {
     })
     .join("");
 
-  const groupedRestaurantsHtml = state.restaurants
+  const uniqueUsers = [...new Set(
+    state.reservations
+      .map((r) => r.username ?? r.userName ?? "")
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b));
+
+  const userOptions = uniqueUsers
+    .map((user) => `<option value="${escapeAttr(user)}">${escapeHtml(user)}</option>`)
+    .join("");
+
+  const filteredRestaurants = getFilteredRestaurantsForTables();
+
+  const groupedRestaurantsHtml = filteredRestaurants
     .map((restaurant) => {
       const restaurantId = restaurant.restaurantId ?? restaurant.id;
       const restaurantName = restaurant.name ?? "Nepoznato";
@@ -568,7 +728,7 @@ function renderTablesTab(container) {
             .map((table) => {
               const tableId = table.tableId ?? table.id;
               const seats = table.seats ?? "-";
-              const reservationsForTable = getReservationsForTable(tableId);
+              const reservationsForTable = getFilteredReservationsForTable(tableId);
 
               const reservationsHtml = reservationsForTable.length
                 ? reservationsForTable
@@ -630,42 +790,80 @@ function renderTablesTab(container) {
     .join("");
 
   container.innerHTML = `
-    <div class="card p-4 mb-4">
-      <h3 class="mb-3">Dodaj / uredi stol</h3>
+    <div class="row g-4 mb-4">
+      <div class="col-lg-7">
+        <div class="card p-4 h-100">
+          <h3 class="mb-3">Dodaj / uredi stol</h3>
 
-      <form id="table-form" class="row g-3">
-        <input type="hidden" id="table-id" />
+          <form id="table-form" class="row g-3">
+            <input type="hidden" id="table-id" />
 
-        <div class="col-md-12">
-          <label class="form-label">Odaberi postojeći stol</label>
-          <select class="form-select" id="existing-table-select">
-            <option value="">Odaberi stol iz popisa</option>
-            ${tableOptions}
-          </select>
+            <div class="col-md-12">
+              <label class="form-label">Odaberi postojeći stol</label>
+              <select class="form-select" id="existing-table-select">
+                <option value="">Odaberi stol iz popisa</option>
+                ${tableOptions}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Restoran</label>
+              <select class="form-select" id="table-restaurant-id" required>
+                <option value="">Odaberi restoran</option>
+                ${restaurantOptions}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Broj mjesta</label>
+              <input type="number" class="form-control" id="table-seats" min="1" max="20" required />
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+              <button type="submit" class="btn btn-primary-custom">Spremi</button>
+              <button type="button" class="btn btn-secondary" id="table-reset-btn">Reset</button>
+            </div>
+          </form>
         </div>
+      </div>
 
-        <div class="col-md-6">
-          <label class="form-label">Restoran</label>
-          <select class="form-select" id="table-restaurant-id" required>
-            <option value="">Odaberi restoran</option>
-            ${restaurantOptions}
-          </select>
-        </div>
+      <div class="col-lg-5">
+        <div class="card p-4 h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">Filter</h3>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="table-filters-reset-btn">
+              Reset
+            </button>
+          </div>
 
-        <div class="col-md-6">
-          <label class="form-label">Broj mjesta</label>
-          <input type="number" class="form-control" id="table-seats" min="1" max="20" required />
-        </div>
+          <form id="table-filter-form" class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Restoran</label>
+              <select class="form-select" id="table-filter-restaurant">
+                <option value="">Svi restorani</option>
+                ${restaurantOptions}
+              </select>
+            </div>
 
-        <div class="col-12 d-flex gap-2">
-          <button type="submit" class="btn btn-primary-custom">Spremi</button>
-          <button type="button" class="btn btn-secondary" id="table-reset-btn">Reset</button>
+            <div class="col-12">
+              <label class="form-label">Korisnik</label>
+              <select class="form-select" id="table-filter-user">
+                <option value="">Svi korisnici</option>
+                ${userOptions}
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Datum</label>
+              <input type="date" class="form-control" id="table-filter-date" />
+            </div>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
 
     <div class="mb-4">
-      ${groupedRestaurantsHtml}
+      ${groupedRestaurantsHtml || `<div class="card p-4"><p class="mb-0">Nema rezultata za odabrane filtere.</p></div>`}
     </div>
   `;
 
@@ -681,6 +879,13 @@ function renderTablesTab(container) {
     document.getElementById("table-restaurant-id").value = table.restaurantId;
     document.getElementById("table-seats").value = table.seats;
   });
+
+  document.getElementById("table-filter-restaurant")?.addEventListener("change", renderActiveTab);
+  document.getElementById("table-filter-user")?.addEventListener("change", renderActiveTab);
+  document.getElementById("table-filter-date")?.addEventListener("change", renderActiveTab);
+  document.getElementById("table-filters-reset-btn")?.addEventListener("click", resetTableFilters);
+
+  restoreTableFilterValues();
 
   container.querySelectorAll(".edit-table-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -1016,4 +1221,249 @@ function getReservationsForTable(tableId) {
       const dateB = new Date(b.reservationDateTime ?? b.reservationDate ?? b.date ?? 0).getTime();
       return dateA - dateB;
     });
+}
+
+function getFilteredReservations() {
+  const userFilter = document.getElementById("reservation-filter-user")?.value?.trim().toLowerCase() ?? "";
+  const restaurantFilter = document.getElementById("reservation-filter-restaurant")?.value?.trim() ?? "";
+  const statusFilter = document.getElementById("reservation-filter-status")?.value?.trim().toLowerCase() ?? "";
+  const dateFilter = document.getElementById("reservation-filter-date")?.value ?? "";
+
+  return state.reservations.filter((r) => {
+    const user = String(r.username ?? r.userName ?? "").toLowerCase();
+    const restaurantId = String(r.restaurantId ?? "");
+    const status = String(r.status ?? "").toLowerCase();
+    const rawDate = r.reservationDateTime ?? r.reservationDate ?? r.date ?? "";
+    const normalizedDate = normalizeDateOnly(rawDate);
+
+    const matchesUser = !userFilter || user === userFilter;
+    const matchesRestaurant = !restaurantFilter || restaurantId === restaurantFilter;
+    const matchesStatus = !statusFilter || status === statusFilter;
+    const matchesDate = !dateFilter || normalizedDate === dateFilter;
+
+    return matchesUser && matchesRestaurant && matchesStatus && matchesDate;
+  });
+}
+
+function normalizeDateOnly(value) {
+  if (!value) return "";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function resetReservationFilters() {
+  const user = document.getElementById("reservation-filter-user");
+  const restaurant = document.getElementById("reservation-filter-restaurant");
+  const status = document.getElementById("reservation-filter-status");
+  const date = document.getElementById("reservation-filter-date");
+
+  if (user) user.value = "";
+  if (restaurant) restaurant.value = "";
+  if (status) status.value = "";
+  if (date) date.value = "";
+
+  renderActiveTab();
+}
+
+function restoreReservationFilterValues() {
+  const previous = window.__reservationFilters || {};
+
+  const user = document.getElementById("reservation-filter-user");
+  const restaurant = document.getElementById("reservation-filter-restaurant");
+  const status = document.getElementById("reservation-filter-status");
+  const date = document.getElementById("reservation-filter-date");
+
+  if (user && previous.user) user.value = previous.user;
+  if (restaurant && previous.restaurant) restaurant.value = previous.restaurant;
+  if (status && previous.status) status.value = previous.status;
+  if (date && previous.date) date.value = previous.date;
+
+  [user, restaurant, status, date].forEach((el) => {
+    el?.addEventListener("change", saveReservationFiltersState);
+  });
+}
+
+function saveReservationFiltersState() {
+  window.__reservationFilters = {
+    user: document.getElementById("reservation-filter-user")?.value ?? "",
+    restaurant: document.getElementById("reservation-filter-restaurant")?.value ?? "",
+    status: document.getElementById("reservation-filter-status")?.value ?? "",
+    date: document.getElementById("reservation-filter-date")?.value ?? "",
+  };
+}
+
+function getFilteredRestaurantsForTables() {
+  const restaurantFilter = document.getElementById("table-filter-restaurant")?.value?.trim() ?? "";
+  const userFilter = document.getElementById("table-filter-user")?.value?.trim().toLowerCase() ?? "";
+  const dateFilter = document.getElementById("table-filter-date")?.value ?? "";
+
+  return state.restaurants.filter((restaurant) => {
+    const restaurantId = String(restaurant.restaurantId ?? restaurant.id);
+
+    if (restaurantFilter && restaurantId !== restaurantFilter) {
+      return false;
+    }
+
+    const restaurantTables = state.tables.filter(
+      (t) => String(t.restaurantId) === restaurantId
+    );
+
+    if (!userFilter && !dateFilter) {
+      return restaurantTables.length > 0;
+    }
+
+    return restaurantTables.some((table) => {
+      const tableId = table.tableId ?? table.id;
+      return getFilteredReservationsForTable(tableId).length > 0;
+    });
+  });
+}
+
+function getFilteredReservationsForTable(tableId) {
+  const userFilter = document.getElementById("table-filter-user")?.value?.trim().toLowerCase() ?? "";
+  const dateFilter = document.getElementById("table-filter-date")?.value ?? "";
+
+  return state.reservations
+    .filter((r) => String(r.tableId) === String(tableId))
+    .filter((r) => {
+      const user = String(r.username ?? r.userName ?? "").toLowerCase();
+      const rawDate = r.reservationDateTime ?? r.reservationDate ?? r.date ?? "";
+      const normalizedDate = normalizeDateOnly(rawDate);
+
+      const matchesUser = !userFilter || user === userFilter;
+      const matchesDate = !dateFilter || normalizedDate === dateFilter;
+
+      return matchesUser && matchesDate;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.reservationDateTime ?? a.reservationDate ?? a.date ?? 0).getTime();
+      const dateB = new Date(b.reservationDateTime ?? b.reservationDate ?? b.date ?? 0).getTime();
+      return dateA - dateB;
+    });
+}
+
+function resetTableFilters() {
+  const restaurant = document.getElementById("table-filter-restaurant");
+  const user = document.getElementById("table-filter-user");
+  const date = document.getElementById("table-filter-date");
+
+  if (restaurant) restaurant.value = "";
+  if (user) user.value = "";
+  if (date) date.value = "";
+
+  renderActiveTab();
+}
+
+function restoreTableFilterValues() {
+  const previous = window.__tableFilters || {};
+
+  const restaurant = document.getElementById("table-filter-restaurant");
+  const user = document.getElementById("table-filter-user");
+  const date = document.getElementById("table-filter-date");
+
+  if (restaurant && previous.restaurant) restaurant.value = previous.restaurant;
+  if (user && previous.user) user.value = previous.user;
+  if (date && previous.date) date.value = previous.date;
+
+  [restaurant, user, date].forEach((el) => {
+    el?.addEventListener("change", saveTableFiltersState);
+  });
+}
+
+function saveTableFiltersState() {
+  window.__tableFilters = {
+    restaurant: document.getElementById("table-filter-restaurant")?.value ?? "",
+    user: document.getElementById("table-filter-user")?.value ?? "",
+    date: document.getElementById("table-filter-date")?.value ?? "",
+  };
+}
+
+let restaurantAdminMap = null;
+let restaurantAdminMarker = null;
+let restaurantAdminGeocoder = null;
+
+function initializeRestaurantAdminMap() {
+  if (typeof window.google === "undefined" || !window.google.maps) {
+    return;
+  }
+
+  initRestaurantAdminMap();
+}
+
+function initRestaurantAdminMap(lat = 45.815, lng = 15.9819) {
+  const mapElement = document.getElementById("restaurant-admin-map");
+  if (!mapElement || typeof window.google === "undefined" || !window.google.maps) {
+    return;
+  }
+
+  const center = { lat, lng };
+
+  restaurantAdminMap = new google.maps.Map(mapElement, {
+    center,
+    zoom: 7,
+  });
+
+  restaurantAdminGeocoder = new google.maps.Geocoder();
+
+  restaurantAdminMarker = new google.maps.Marker({
+    position: center,
+    map: restaurantAdminMap,
+    draggable: true,
+  });
+
+  restaurantAdminMap.addListener("click", (event) => {
+    const clickedLat = event.latLng.lat();
+    const clickedLng = event.latLng.lng();
+
+    setRestaurantCoordinates(clickedLat, clickedLng);
+    restaurantAdminMarker.setPosition({ lat: clickedLat, lng: clickedLng });
+    reverseGeocodeRestaurant(clickedLat, clickedLng);
+  });
+
+  restaurantAdminMarker.addListener("dragend", (event) => {
+    const draggedLat = event.latLng.lat();
+    const draggedLng = event.latLng.lng();
+
+    setRestaurantCoordinates(draggedLat, draggedLng);
+    reverseGeocodeRestaurant(draggedLat, draggedLng);
+  });
+
+  setRestaurantCoordinates(lat, lng);
+}
+
+function setRestaurantCoordinates(lat, lng) {
+  document.getElementById("restaurant-latitude").value = lat;
+  document.getElementById("restaurant-longitude").value = lng;
+  document.getElementById("restaurant-latitude-preview").value = lat.toFixed(6);
+  document.getElementById("restaurant-longitude-preview").value = lng.toFixed(6);
+}
+
+function reverseGeocodeRestaurant(lat, lng) {
+  if (!restaurantAdminGeocoder) return;
+
+  restaurantAdminGeocoder.geocode(
+    { location: { lat, lng } },
+    (results, status) => {
+      if (status !== "OK" || !results || !results.length) {
+        return;
+      }
+
+      const best = results[0];
+      const cityComponent = best.address_components?.find((component) =>
+        component.types.includes("locality")
+      );
+
+      document.getElementById("restaurant-address").value = best.formatted_address ?? "";
+      if (cityComponent) {
+        document.getElementById("restaurant-city").value = cityComponent.long_name ?? "";
+      }
+    }
+  );
 }

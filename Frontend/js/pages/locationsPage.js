@@ -77,12 +77,16 @@ function renderMap() {
 
   mapRendered = true;
 
-  const defaultCenter = { lat: 45.815, lng: 15.9819 };
+  const croatiaCenter = { lat: 45.1, lng: 15.2 };
 
   map = new google.maps.Map(mapElement, {
-    center: defaultCenter,
+    center: croatiaCenter,
     zoom: 7,
   });
+
+  setTimeout(() => {
+    google.maps.event.trigger(map, "resize");
+  }, 200);
 
   infoWindow = new google.maps.InfoWindow();
 
@@ -121,6 +125,11 @@ function renderMap() {
 
   if (hasValidMarker) {
     map.fitBounds(bounds);
+
+    setTimeout(() => {
+      google.maps.event.trigger(map, "resize");
+      map.fitBounds(bounds);
+    }, 200);
   }
 }
 
@@ -181,14 +190,15 @@ function renderRestaurantCards(restaurants) {
       const workingHours = restaurant.workingHours ?? "Nije dostupno";
 
       return `
-        <div class="col-md-6 col-lg-3">
-          <div class="card h-100 p-3">
-            <h5 class="mb-2">${escapeHtml(name)}</h5>
-            <p class="mb-1 small"><strong>Adresa:</strong> ${escapeHtml(address)}</p>
-            <p class="mb-1 small"><strong>Grad:</strong> ${escapeHtml(city)}</p>
-            <p class="mb-2 small"><strong>Radno vrijeme:</strong> ${escapeHtml(workingHours)}</p>
+        <div class="col-12">
+          <div class="card p-3 d-flex flex-row align-items-center justify-content-between">
+            <div>
+              <h6 class="mb-1">${escapeHtml(name)}</h6>
+              <p class="mb-1 small">${escapeHtml(address)}, ${escapeHtml(city)}</p>
+              <p class="mb-0 small">🕒 ${escapeHtml(workingHours)}</p>
+            </div>
 
-            <div class="d-flex gap-2 mt-auto flex-wrap">
+            <div class="d-flex gap-2 flex-shrink-0">
               <button
                 type="button"
                 class="btn btn-primary-custom open-reservation-modal-btn"
@@ -197,7 +207,7 @@ function renderRestaurantCards(restaurants) {
                 Rezerviraj
               </button>
               <a
-                class="btn btn-outline-dark"
+                class="btn btn-primary-custom"
                 href="${buildGoogleMapsDirectionsUrl(restaurant)}"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -211,7 +221,6 @@ function renderRestaurantCards(restaurants) {
     })
     .join("");
 }
-
 function renderRestaurantOptions() {
   const options = restaurantsState
     .map((restaurant) => {
