@@ -44,5 +44,20 @@ namespace IdleReservationsBE.Controllers
             _service.PromoteUser(dto);
             return Ok("User promoted");
         }
+
+        [HttpPost("save-fcm-token")]
+        public IActionResult SaveFcmToken([FromBody] SaveTokenDto dto)
+        {
+            _service.SaveFcmToken(dto.UserId, dto.Token);
+            return Ok();
+        }
+
+        [HttpPost("remove-fcm-token")]
+        public IActionResult RemoveFcmToken([FromBody] RemoveTokenDto dto)
+        {
+            _service.RemoveFcmToken(dto.UserId);
+            return Ok();
+        }
+
     }
 }

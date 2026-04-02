@@ -92,9 +92,12 @@ namespace IdleReservationsBE
             builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
 
-//cors za frontend
+            builder.Services.AddSingleton<FirebaseNotificationService>();
 
-builder.Services.AddCors(options =>
+
+            //cors za frontend
+
+            builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {

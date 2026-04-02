@@ -24,7 +24,7 @@
                 UserId = n.UserId,
                 Title = n.Title,
                 Message = n.Message,
-                IsRead = n.IsRead.GetValueOrDefault()
+                IsRead = n.IsRead
             });
         }
 

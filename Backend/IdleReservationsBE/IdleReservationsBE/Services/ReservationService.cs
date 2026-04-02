@@ -10,17 +10,20 @@
         private readonly IRestaurantRepository _restaurantRepo;
         private readonly ITableRepository _tableRepo;
         private readonly IUserRepository _userRepo;
+        private readonly FirebaseNotificationService _firebase;
 
         public ReservationService(
             IReservationRepository repo,
             IRestaurantRepository restaurantRepo,
             ITableRepository tableRepo,
-            IUserRepository userRepo)
+            IUserRepository userRepo,
+            FirebaseNotificationService firebase)
         {
             _repo = repo;
             _restaurantRepo = restaurantRepo;
             _tableRepo = tableRepo;
             _userRepo = userRepo;
+            _firebase = firebase;
         }
 
         public IEnumerable<ReservationResponseDto> GetAll()
@@ -29,11 +32,11 @@
             {
                 ReservationId = r.ReservationId,
                 UserId = r.UserId,
-                Username = r.User != null ? r.User.Username : null,
+                Username = r.User?.Username,
                 RestaurantId = r.RestaurantId,
-                RestaurantName = r.Restaurant != null ? r.Restaurant.Name : null,
+                RestaurantName = r.Restaurant?.Name,
                 TableId = r.TableId,
-                Seats = r.Table != null ? r.Table.Seats : 0,
+                Seats = r.Table?.Seats ?? 0,
                 ReservationDateTime = r.ReservationDateTime,
                 PartySize = r.PartySize,
                 Status = r.Status
@@ -50,18 +53,18 @@
             {
                 ReservationId = r.ReservationId,
                 UserId = r.UserId,
-                Username = r.User != null ? r.User.Username : null,
+                Username = r.User?.Username,
                 RestaurantId = r.RestaurantId,
-                RestaurantName = r.Restaurant != null ? r.Restaurant.Name : null,
+                RestaurantName = r.Restaurant?.Name,
                 TableId = r.TableId,
-                Seats = r.Table != null ? r.Table.Seats : 0,
+                Seats = r.Table?.Seats ?? 0,
                 ReservationDateTime = r.ReservationDateTime,
                 PartySize = r.PartySize,
                 Status = r.Status
             };
         }
 
-        public void Create(ReservationCreateDto dto)
+        public async void Create(ReservationCreateDto dto)
         {
             var user = _userRepo.GetById(dto.UserId);
             if (user == null)
@@ -78,11 +81,20 @@
             if (table.RestaurantId != dto.RestaurantId)
                 throw new Exception("Table does not belong to this restaurant");
 
+            //  zabrana rezervacija u prošlosti
+            if (dto.ReservationDateTime < DateTime.Now)
+                throw new Exception("Cannot create reservation in the past");
+
+            //  party size > table capacity
+            if (dto.PartySize > table.Seats)
+                throw new Exception("Party size exceeds table capacity");
+
             var reservations = _repo.GetByTable(dto.TableId);
 
+            //  stroža provjera zauzetosti
             bool isTaken = reservations.Any(r =>
                 r.ReservationDateTime == dto.ReservationDateTime &&
-                r.Status == "Active"
+                r.Status != "Cancelled"
             );
 
             if (isTaken)
@@ -100,9 +112,19 @@
 
             _repo.Create(reservation);
             _repo.Save();
+
+            //  SEND NOTIFICATION: Reservation Created
+            if (!string.IsNullOrEmpty(user.FcmToken))
+            {
+                await _firebase.SendAsync(
+                    user.FcmToken,
+                    "Reservation Created",
+                    $"Your reservation at {restaurant.Name} is pending confirmation."
+                );
+            }
         }
 
-        public void Update(int id, ReservationCreateDto dto)
+        public async void Update(int id, ReservationCreateDto dto)
         {
             var reservation = _repo.GetById(id);
             if (reservation == null)
@@ -123,12 +145,21 @@
             if (table.RestaurantId != dto.RestaurantId)
                 throw new Exception("Table does not belong to this restaurant");
 
+            //  zabrana prošlih datuma
+            if (dto.ReservationDateTime < DateTime.Now)
+                throw new Exception("Cannot update reservation to a past time");
+
+            //  party size > table capacity
+            if (dto.PartySize > table.Seats)
+                throw new Exception("Party size exceeds table capacity");
+
             var reservations = _repo.GetByTable(dto.TableId);
 
+            //  stroža provjera zauzetosti
             bool isTaken = reservations.Any(r =>
                 r.ReservationId != id &&
                 r.ReservationDateTime == dto.ReservationDateTime &&
-                r.Status == "Active"
+                r.Status != "Cancelled"
             );
 
             if (isTaken)
@@ -142,9 +173,19 @@
 
             _repo.Update(reservation);
             _repo.Save();
+
+            //  SEND NOTIFICATION: Reservation Updated
+            if (!string.IsNullOrEmpty(user.FcmToken))
+            {
+                await _firebase.SendAsync(
+                    user.FcmToken,
+                    "Reservation Updated",
+                    $"Your reservation at {restaurant.Name} has been updated."
+                );
+            }
         }
 
-        public void UpdateStatus(int id, string status)
+        public async void UpdateStatus(int id, string status)
         {
             var reservation = _repo.GetById(id);
             if (reservation == null)
@@ -153,9 +194,21 @@
             reservation.Status = status;
             _repo.Update(reservation);
             _repo.Save();
+
+            var user = _userRepo.GetById(reservation.UserId);
+
+            // SEND NOTIFICATION: Status Changed
+            if (!string.IsNullOrEmpty(user.FcmToken))
+            {
+                await _firebase.SendAsync(
+                    user.FcmToken,
+                    "Reservation Status Updated",
+                    $"Your reservation status is now: {status}"
+                );
+            }
         }
 
-        public void Cancel(int id)
+        public async void Cancel(int id)
         {
             var r = _repo.GetById(id);
             if (r == null)
@@ -165,6 +218,18 @@
 
             _repo.Update(r);
             _repo.Save();
+
+            var user = _userRepo.GetById(r.UserId);
+
+            // SEND NOTIFICATION: Reservation Cancelled
+            if (!string.IsNullOrEmpty(user.FcmToken))
+            {
+                await _firebase.SendAsync(
+                    user.FcmToken,
+                    "Reservation Cancelled",
+                    "Your reservation has been cancelled."
+                );
+            }
         }
     }
 }

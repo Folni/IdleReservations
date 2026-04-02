@@ -3,6 +3,7 @@
     using IdleReservationsBE.DTO;
     using IdleReservationsBE.Interfaces;
     using IdleReservationsBE.Models;
+    using IdleReservationsBE.Repositories;
     using LocalMarketAPI.Security;
 
     public class UserService : IUserService
@@ -92,6 +93,25 @@
             _repo.Update(user);
             _repo.Save();
         }
+
+        public void SaveFcmToken(int userId, string token)
+        {
+            var user = _repo.GetById(userId);
+            if (user == null) throw new Exception("User not found");
+
+            user.FcmToken = token;
+            _repo.Update(user);
+        }
+
+        public void RemoveFcmToken(int userId)
+        {
+            var user = _repo.GetById(userId);
+            if (user == null) throw new Exception("User not found");
+
+            user.FcmToken = null;
+            _repo.Update(user);
+        }
+
     }
 
 }

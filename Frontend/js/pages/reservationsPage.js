@@ -13,14 +13,20 @@ document.getElementById("nav").innerHTML = renderNav();
 document.getElementById("footer").innerHTML = renderFooter();
 
 const content = document.getElementById("reservations-content");
-const createReservationForm = document.getElementById("create-reservation-form");
+const createReservationForm = document.getElementById(
+  "create-reservation-form",
+);
 const formMessage = document.getElementById("reservation-form-message");
 const restaurantSelect = document.getElementById("reservation-restaurant-id");
 const tableSelect = document.getElementById("reservation-table-id");
+const dateInput = document.getElementById("reservation-datetime");
 
 let restaurantsState = [];
 let tablesState = [];
 let allTablesState = [];
+
+//  Set minimum date to NOW
+dateInput.min = new Date().toISOString().slice(0, 16);
 
 init();
 
@@ -92,7 +98,7 @@ function enrichReservations(reservations) {
 
 function getRestaurantName(restaurantId) {
   const restaurant = restaurantsState.find(
-    (r) => String(r.restaurantId ?? r.id) === String(restaurantId)
+    (r) => String(r.restaurantId ?? r.id) === String(restaurantId),
   );
 
   return restaurant?.name || `Restoran ${restaurantId ?? "-"}`;
@@ -100,7 +106,7 @@ function getRestaurantName(restaurantId) {
 
 function getTableLabel(tableId) {
   const table = allTablesState.find(
-    (t) => String(t.tableId ?? t.id) === String(tableId)
+    (t) => String(t.tableId ?? t.id) === String(tableId),
   );
 
   if (!table) {
@@ -175,16 +181,32 @@ async function handleCreateReservation(event) {
 
   const restaurantId = restaurantSelect.value.trim();
   const tableId = tableSelect.value.trim();
-  const reservationDateTime = document.getElementById("reservation-datetime").value.trim();
-  const partySize = document.getElementById("reservation-party-size").value.trim();
+  const reservationDateTime = dateInput.value.trim();
+  const partySize = document
+    .getElementById("reservation-party-size")
+    .value.trim();
 
   if (!restaurantId || !tableId || !reservationDateTime || !partySize) {
     setFormMessage("Sva polja su obavezna.", "danger");
     return;
   }
 
-  if (Number(partySize) < 1) {
-    setFormMessage("Broj osoba mora biti veći od 0.", "danger");
+  //  past date
+  if (new Date(reservationDateTime) < new Date()) {
+    setFormMessage("Ne možeš rezervirati u prošlosti.", "danger");
+    return;
+  }
+
+  //  party size > table seats
+  const selectedTable = tablesState.find(
+    (t) => String(t.tableId ?? t.id) === String(tableId),
+  );
+
+  if (selectedTable && Number(partySize) > selectedTable.seats) {
+    setFormMessage(
+      `Maksimalan broj osoba za ovaj stol je ${selectedTable.seats}.`,
+      "danger",
+    );
     return;
   }
 
@@ -193,8 +215,12 @@ async function handleCreateReservation(event) {
   const userId =
     tokenPayload?.userId ||
     tokenPayload?.nameid ||
-    tokenPayload?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] ||
-    tokenPayload?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/nameidentifier"] ||
+    tokenPayload?.[
+      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+    ] ||
+    tokenPayload?.[
+      "http://schemas.microsoft.com/ws/2008/06/identity/claims/nameidentifier"
+    ] ||
     null;
 
   if (!userId) {
@@ -223,8 +249,13 @@ async function handleCreateReservation(event) {
 
     await loadReservations();
   } catch (error) {
-    setFormMessage(error.message || "Greška pri kreiranju rezervacije.", "danger");
-    showToast(error.message || "Greška pri kreiranju rezervacije.", "error");
+    const msg =
+      error?.response?.data ||
+      error?.message ||
+      "Greška pri kreiranju rezervacije.";
+
+    setFormMessage(msg, "danger");
+    showToast(msg, "error");
   }
 }
 
@@ -239,7 +270,10 @@ function getTokenPayload() {
   try {
     const base64Url = token.split(".")[1];
     const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = base64.padEnd(base64.length + (4 - (base64.length % 4)) % 4, "=");
+    const padded = base64.padEnd(
+      base64.length + ((4 - (base64.length % 4)) % 4),
+      "=",
+    );
     return JSON.parse(atob(padded));
   } catch (error) {
     return null;
@@ -261,7 +295,9 @@ function filterMyReservations(reservations) {
 
   const userId =
     payload.nameid ||
-    payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] ||
+    payload[
+      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+    ] ||
     payload.userId ||
     payload.userid ||
     payload.id ||
@@ -286,7 +322,8 @@ function filterMyReservations(reservations) {
     const matchesByUsername =
       username &&
       reservationUserName &&
-      String(reservationUserName).toLowerCase() === String(username).toLowerCase();
+      String(reservationUserName).toLowerCase() ===
+        String(username).toLowerCase();
 
     const matchesByUserId =
       userId &&
