@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- IdleReservations brand palette -->
+    <color name="idle_cyan">#06B6D4</color>
+    <color name="idle_cyan_light">#CFFAFE</color>
+    <color name="idle_cyan_dark">#0E7490</color>
+    <color name="idle_purple">#8B5CF6</color>
+    <color name="idle_purple_light">#EDE9FE</color>
+    <color name="idle_purple_dark">#6D28D9</color>
+    <color name="idle_navy">#1A1A2E</color>
+    <color name="idle_background">#F1F2F7</color>
+    <color name="idle_surface">#FFFFFF</color>
+    <color name="idle_surface_variant">#E8E9F0</color>
+    <color name="idle_text_primary">#1A1A2E</color>
+    <color name="idle_text_secondary">#6B7280</color>
+
+    <!-- Night variants -->
+    <color name="idle_cyan_night">#22D3EE</color>
+    <color name="idle_purple_night">#A78BFA</color>
+    <color name="idle_background_night">#0D0D1A</color>
+    <color name="idle_surface_night">#1A1A2E</color>
+    <color name="idle_surface_variant_night">#252540</color>
+    <color name="idle_text_primary_night">#F1F2F7</color>
+    <color name="idle_text_secondary_night">#9CA3AF</color>
+</resources>

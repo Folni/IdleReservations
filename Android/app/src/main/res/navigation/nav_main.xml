@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_main"
+    app:startDestination="@id/nav_home">
+
+    <!-- ── Bottom nav destinations ──────────────────────────────────────────── -->
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="hr.algebra.idlereservations.ui.main.HomeFragment"
+        android:label="Home">
+        <action
+            android:id="@+id/action_home_to_restaurant_detail"
+            app:destination="@id/nav_restaurant_detail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_search"
+        android:name="hr.algebra.idlereservations.ui.main.SearchFragment"
+        android:label="Search">
+        <action
+            android:id="@+id/action_search_to_restaurant_detail"
+            app:destination="@id/nav_restaurant_detail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_map"
+        android:name="hr.algebra.idlereservations.ui.reservation.maps.MapsFragment"
+        android:label="Map">
+        <action
+            android:id="@+id/action_map_to_booking"
+            app:destination="@id/nav_booking" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_my_reservations"
+        android:name="hr.algebra.idlereservations.ui.reservation.myreservations.MyReservationsFragment"
+        android:label="My Reservations" />
+
+    <!-- ── Drill-down screens (not in bottom nav) ────────────────────────────── -->
+
+    <fragment
+        android:id="@+id/nav_restaurant_detail"
+        android:name="hr.algebra.idlereservations.ui.restaurant.RestaurantDetailFragment"
+        android:label="Restaurant">
+        <argument
+            android:name="restaurantId"
+            app:argType="integer" />
+        <argument
+            android:name="restaurantName"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_restaurant_detail_to_booking"
+            app:destination="@id/nav_booking" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_booking"
+        android:name="hr.algebra.idlereservations.ui.reservation.booking.BookingFragment"
+        android:label="Book a Table">
+        <argument
+            android:name="restaurantId"
+            app:argType="integer" />
+        <argument
+            android:name="restaurantName"
+            app:argType="string" />
+        <argument
+            android:name="workingHours"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="hr.algebra.idlereservations.ui.main.SettingsFragment"
+        android:label="Settings" />
+
+</navigation>
