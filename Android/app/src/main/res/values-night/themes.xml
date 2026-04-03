@@ -1,0 +1,30 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.IdleReservations" parent="Theme.Material3.Dark.NoActionBar">
+        <!-- Brand colours (night) -->
+        <item name="colorPrimary">@color/idle_cyan_night</item>
+        <item name="colorOnPrimary">@color/idle_navy</item>
+        <item name="colorPrimaryContainer">@color/idle_cyan_dark</item>
+        <item name="colorOnPrimaryContainer">@color/idle_cyan_light</item>
+
+        <item name="colorSecondary">@color/idle_purple_night</item>
+        <item name="colorOnSecondary">@color/idle_navy</item>
+        <item name="colorSecondaryContainer">@color/idle_purple_dark</item>
+        <item name="colorOnSecondaryContainer">@color/idle_purple_light</item>
+
+        <item name="colorTertiary">@color/idle_purple_night</item>
+        <item name="colorOnTertiary">@color/idle_navy</item>
+
+        <!-- Backgrounds and surfaces -->
+        <item name="android:colorBackground">@color/idle_background_night</item>
+        <item name="colorSurface">@color/idle_surface_night</item>
+        <item name="colorOnSurface">@color/idle_text_primary_night</item>
+        <item name="colorSurfaceVariant">@color/idle_surface_variant_night</item>
+        <item name="colorOnSurfaceVariant">@color/idle_text_secondary_night</item>
+        <item name="colorOnBackground">@color/idle_text_primary_night</item>
+
+        <!-- System bars -->
+        <item name="android:statusBarColor">@color/idle_background_night</item>
+        <item name="android:navigationBarColor">@color/idle_background_night</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+    </style>
+</resources>
