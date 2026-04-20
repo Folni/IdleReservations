@@ -29,7 +29,6 @@ class ReservationAdapter(
             binding.tvPartySize.text      = "Party of ${reservation.partySize}"
             binding.tvSeats.text          = "Table: ${reservation.tableSeats} seats"
 
-            // Format ISO datetime for display
             binding.tvDateTime.text = try {
                 val dt = LocalDateTime.parse(reservation.reservationDateTime, isoFormatter)
                 dt.format(displayFormatter)
@@ -37,7 +36,6 @@ class ReservationAdapter(
                 reservation.reservationDateTime
             }
 
-            // Status badge
             val (label, color) = when (reservation.status) {
                 ReservationStatus.CONFIRMED -> "Confirmed" to Color.parseColor("#1D9E75")
                 ReservationStatus.PENDING   -> "Pending"   to Color.parseColor("#BA7517")
@@ -47,7 +45,7 @@ class ReservationAdapter(
             binding.tvStatus.text = label
             binding.tvStatus.setTextColor(color)
 
-            // Disable edit/cancel for already-cancelled reservations
+
             val isActive = reservation.status != ReservationStatus.CANCELLED
             binding.btnEdit.isEnabled   = isActive
             binding.btnCancel.isEnabled = isActive

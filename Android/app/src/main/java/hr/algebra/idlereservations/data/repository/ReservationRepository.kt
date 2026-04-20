@@ -38,22 +38,28 @@ class ReservationRepository {
         tableId: Int,
         dateTime: String,
         partySize: Int
-    ): Result<Unit> {
+    ): Result<String> {
         return try {
             val body = CreateReservationRequest(userId, restaurantId, tableId, dateTime, partySize)
             val response = api.createReservation(body)
-            if (response.isSuccessful) Result.success(Unit)
-            else Result.failure(Exception("Error ${response.code()}: ${response.message()}"))
+            if (response.isSuccessful)
+                Result.success(response.body() ?: "Reservation created successfully")
+            else
+                Result.failure(Exception(response.errorBody()?.string()?.takeIf { it.isNotBlank() }
+                    ?: "Error ${response.code()}: ${response.message()}"))
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    suspend fun cancelReservation(reservationId: Int): Result<Unit> {
+    suspend fun cancelReservation(reservationId: Int): Result<String> {
         return try {
             val response = api.cancelReservation(reservationId)
-            if (response.isSuccessful) Result.success(Unit)
-            else Result.failure(Exception("Error ${response.code()}: ${response.message()}"))
+            if (response.isSuccessful)
+                Result.success(response.body() ?: "Reservation cancelled")
+            else
+                Result.failure(Exception(response.errorBody()?.string()?.takeIf { it.isNotBlank() }
+                    ?: "Error ${response.code()}: ${response.message()}"))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -78,22 +84,25 @@ class ReservationRepository {
         userId: Int,
         newDateTime: String,
         newPartySize: Int,
-        currentStatus: String
-    ): Result<Reservation> {
+        tableId: Int,
+        currentStatus: String,
+        restaurantId: Int
+    ): Result<String> {
         return try {
             val body = UpdateReservationRequest(
+                restaurantId        = restaurantId,
                 userId              = userId,
                 reservationDateTime = newDateTime,
                 partySize           = newPartySize,
+                tableId             = tableId,
                 status              = currentStatus
             )
             val response = api.updateReservation(reservationId, body)
-            if (response.isSuccessful) {
-                val updated = response.body()?.toReservation() ?: return Result.failure(Exception("Empty response body"))
-                Result.success(updated)
-            } else {
-                Result.failure(Exception("Error ${response.code()}: ${response.message()}"))
-            }
+            if (response.isSuccessful)
+                Result.success(response.body() ?: "Reservation updated successfully")
+            else
+                Result.failure(Exception(response.errorBody()?.string()?.takeIf { it.isNotBlank() }
+                    ?: "Error ${response.code()}: ${response.message()}"))
         } catch (e: Exception) {
             Result.failure(e)
         }

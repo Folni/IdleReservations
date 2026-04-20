@@ -31,11 +31,11 @@ CREATE TABLE [User] (
     Salt NVARCHAR(255) NOT NULL,
     FirstName NVARCHAR(100),
     LastName NVARCHAR(100),
+	LoyaltyPoints INT NOT NULL DEFAULT 0,
     RoleId INT NOT NULL,
     CONSTRAINT fk_user_role FOREIGN KEY (RoleId) REFERENCES Role(RoleId)
 );
 GO
-
 -- RESTAURANT (UPDATED FOR GOOGLE MAPS)
 CREATE TABLE Restaurant (
     RestaurantId INT IDENTITY(1,1) PRIMARY KEY,
@@ -97,6 +97,17 @@ CREATE TABLE Notification (
     CONSTRAINT fk_notification_user FOREIGN KEY (UserId)
         REFERENCES [User](UserId) ON DELETE CASCADE
 );
+GO
+
+
+CREATE TABLE FCM_Tokens (
+	FcmId INT IDENTITY(1,1) PRIMARY KEY,
+	Token NVARCHAR(200) NOT NULL,
+	UserId INT NOT NULL
+	CONSTRAINT fk_notifications_user FOREIGN KEY (UserId)
+        REFERENCES [User](UserId) ON DELETE CASCADE
+)
+
 GO
 
 /* =========================================================
@@ -166,10 +177,10 @@ GO
 -- NOTIFICATIONS
 INSERT INTO Notification (UserId, Title, Message)
 VALUES
-(2, 'Reservation Confirmed', 'Your reservation at Idle Central is confirmed.'),
-(3, 'New Promotion', 'Bella Vista currently offers a lunch deal.'),
-(4, 'Reservation Reminder', 'Your reservation starts soon.'),
-(5, 'Status Update', 'Your reservation is pending confirmation.');
+(3, 'Reservation Confirmed', 'Your reservation at Idle Central is confirmed.'),
+(4, 'New Promotion', 'Bella Vista currently offers a lunch deal.'),
+(5, 'Reservation Reminder', 'Your reservation starts soon.'),
+(6, 'Status Update', 'Your reservation is pending confirmation.');
 GO
 
 /* =========================================================

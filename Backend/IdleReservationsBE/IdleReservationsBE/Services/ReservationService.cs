@@ -17,7 +17,8 @@
             IRestaurantRepository restaurantRepo,
             ITableRepository tableRepo,
             IUserRepository userRepo,
-            FirebaseNotificationService firebase)
+            FirebaseNotificationService firebase
+            )
         {
             _repo = repo;
             _restaurantRepo = restaurantRepo;
@@ -64,7 +65,7 @@
             };
         }
 
-        public async void Create(ReservationCreateDto dto)
+        public void Create(ReservationCreateDto dto)
         {
             var user = _userRepo.GetById(dto.UserId);
             if (user == null)
@@ -81,17 +82,14 @@
             if (table.RestaurantId != dto.RestaurantId)
                 throw new Exception("Table does not belong to this restaurant");
 
-            //  zabrana rezervacija u prošlosti
             if (dto.ReservationDateTime < DateTime.Now)
                 throw new Exception("Cannot create reservation in the past");
-
-            //  party size > table capacity
+            
             if (dto.PartySize > table.Seats)
                 throw new Exception("Party size exceeds table capacity");
 
             var reservations = _repo.GetByTable(dto.TableId);
 
-            //  stroža provjera zauzetosti
             bool isTaken = reservations.Any(r =>
                 r.ReservationDateTime == dto.ReservationDateTime &&
                 r.Status != "Cancelled"
@@ -113,18 +111,9 @@
             _repo.Create(reservation);
             _repo.Save();
 
-            //  SEND NOTIFICATION: Reservation Created
-            if (!string.IsNullOrEmpty(user.FcmToken))
-            {
-                await _firebase.SendAsync(
-                    user.FcmToken,
-                    "Reservation Created",
-                    $"Your reservation at {restaurant.Name} is pending confirmation."
-                );
-            }
         }
 
-        public async void Update(int id, ReservationCreateDto dto)
+        public void Update(int id, ReservationCreateDto dto)
         {
             var reservation = _repo.GetById(id);
             if (reservation == null)
@@ -174,18 +163,10 @@
             _repo.Update(reservation);
             _repo.Save();
 
-            //  SEND NOTIFICATION: Reservation Updated
-            if (!string.IsNullOrEmpty(user.FcmToken))
-            {
-                await _firebase.SendAsync(
-                    user.FcmToken,
-                    "Reservation Updated",
-                    $"Your reservation at {restaurant.Name} has been updated."
-                );
-            }
+
         }
 
-        public async void UpdateStatus(int id, string status)
+        public void UpdateStatus(int id, string status)
         {
             var reservation = _repo.GetById(id);
             if (reservation == null)
@@ -197,18 +178,10 @@
 
             var user = _userRepo.GetById(reservation.UserId);
 
-            // SEND NOTIFICATION: Status Changed
-            if (!string.IsNullOrEmpty(user.FcmToken))
-            {
-                await _firebase.SendAsync(
-                    user.FcmToken,
-                    "Reservation Status Updated",
-                    $"Your reservation status is now: {status}"
-                );
-            }
+
         }
 
-        public async void Cancel(int id)
+        public void Cancel(int id)
         {
             var r = _repo.GetById(id);
             if (r == null)
@@ -220,16 +193,12 @@
             _repo.Save();
 
             var user = _userRepo.GetById(r.UserId);
+        }
 
-            // SEND NOTIFICATION: Reservation Cancelled
-            if (!string.IsNullOrEmpty(user.FcmToken))
-            {
-                await _firebase.SendAsync(
-                    user.FcmToken,
-                    "Reservation Cancelled",
-                    "Your reservation has been cancelled."
-                );
-            }
+        public void PingUser(int userId)
+        {
+            _firebase.SendAsync(userId, "Ping from IdleReservations", "This is a test notification").Wait();
+            Console.WriteLine($"Aga");
         }
     }
 }

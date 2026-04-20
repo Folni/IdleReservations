@@ -20,40 +20,88 @@ namespace IdleReservationsBE.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(_service.GetAll());
+            try
+            {
+                return Ok(_service.GetAll());
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            return Ok(_service.GetById(id));
+            try
+            {
+                return Ok(_service.GetById(id));
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpGet("restaurant/{restaurantId}")]
         public IActionResult GetByRestaurant(int restaurantId)
         {
-            return Ok(_service.GetByRestaurant(restaurantId));
+            try
+            {
+                return Ok(_service.GetByRestaurant(restaurantId));
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost]
         public IActionResult Create(TableCreateDto dto)
         {
-            _service.Create(dto);
-            return Ok("Table created");
+            try
+            {
+                _service.Create(dto);
+                return Ok("Table created");
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPut("{id}")]
         public IActionResult Update(int id, TableCreateDto dto)
         {
-            _service.Update(id, dto);
-            return Ok("Table updated");
+            try
+            {
+                _service.Update(id, dto);
+                return Ok("Table updated");
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            _service.Delete(id);
-            return Ok("Table deleted");
+            try
+            {
+                _service.Delete(id);
+                return Ok("Table deleted");
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
     }
 

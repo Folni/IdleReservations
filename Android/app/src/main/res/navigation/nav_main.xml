@@ -13,6 +13,12 @@
         <action
             android:id="@+id/action_home_to_restaurant_detail"
             app:destination="@id/nav_restaurant_detail" />
+        <action
+            android:id="@+id/action_home_to_notifications"
+            app:destination="@id/nav_notifications" />
+        <action
+            android:id="@+id/action_home_to_profile"
+            app:destination="@id/nav_profile" />
     </fragment>
 
     <fragment
@@ -75,5 +81,15 @@
         android:id="@+id/nav_settings"
         android:name="hr.algebra.idlereservations.ui.main.SettingsFragment"
         android:label="Settings" />
+
+    <fragment
+        android:id="@+id/nav_notifications"
+        android:name="hr.algebra.idlereservations.ui.notifications.NotificationsFragment"
+        android:label="Notifications" />
+
+    <fragment
+        android:id="@+id/nav_profile"
+        android:name="hr.algebra.idlereservations.ui.profile.ProfileFragment"
+        android:label="Profile" />
 
 </navigation>

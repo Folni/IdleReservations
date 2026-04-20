@@ -20,43 +20,119 @@ namespace IdleReservationsBE.Controllers
         [HttpPost("register")]
         public IActionResult Register([FromBody] UserRegisterDto dto)
         {
-            var result = _service.Register(dto);
-            return Ok(result);
+            try
+            {
+                var result = _service.Register(dto);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost("login")]
         public IActionResult Login([FromBody] UserLoginDto dto)
         {
-            var token = _service.Login(dto);
-            return Ok(token);
+            try
+            {
+                var token = _service.Login(dto);
+                return Ok(token);
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost("change-password")]
         public IActionResult ChangePassword([FromBody] UserChangePasswordDto dto)
         {
-            _service.ChangePassword(dto);
-            return Ok("Password changed");
+            try
+            {
+                _service.ChangePassword(dto);
+                return Ok("Password changed");
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost("promote")]
         public IActionResult Promote([FromBody] UserPromoteDto dto)
         {
-            _service.PromoteUser(dto);
-            return Ok("User promoted");
+            try
+            {
+                _service.PromoteUser(dto);
+                return Ok("User promoted");
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost("save-fcm-token")]
         public IActionResult SaveFcmToken([FromBody] SaveTokenDto dto)
         {
-            _service.SaveFcmToken(dto.UserId, dto.Token);
-            return Ok();
+            try
+            {
+                _service.SaveFcmToken(dto.UserId, dto.Token);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost("remove-fcm-token")]
         public IActionResult RemoveFcmToken([FromBody] RemoveTokenDto dto)
         {
-            _service.RemoveFcmToken(dto.UserId);
-            return Ok();
+            try
+            {
+                _service.RemoveFcmToken(dto.UserId);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("loyalty/{userId}")]
+        public IActionResult GetLoyaltyPoints(int userId)
+        {
+            try
+            {
+                var points = _service.GetLoyaltyPoints(userId);
+                return Ok(new { points });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("loyalty/increment/{userId}")]
+        public IActionResult IncrementLoyaltyPoints(int userId)
+        {
+            try
+            {
+                var points = _service.IncrementLoyaltyPoints(userId);
+                return Ok(new { points, message = $"Points incremented! New total: {points}" });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
     }

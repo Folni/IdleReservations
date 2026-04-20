@@ -15,6 +15,8 @@ public partial class IdleReservationsDbContext : DbContext
     {
     }
 
+    public virtual DbSet<FcmToken> FcmTokens { get; set; }
+
     public virtual DbSet<Notification> Notifications { get; set; }
 
     public virtual DbSet<Promotion> Promotions { get; set; }
@@ -30,14 +32,26 @@ public partial class IdleReservationsDbContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=MUSUS15;Database=IdleReservationsDB;User ID=sa;Password=SQL;TrustServerCertificate=True");
+        => optionsBuilder.UseSqlServer("name=ConnectionStrings:DbConnStr");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<FcmToken>(entity =>
+        {
+            entity.HasKey(e => e.FcmId).HasName("PK__FCM_Toke__66AA118E8C4FFBE9");
+
+            entity.ToTable("FCM_Tokens");
+
+            entity.Property(e => e.Token).HasMaxLength(200);
+
+            entity.HasOne(d => d.User).WithMany(p => p.FcmTokens)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("fk_notifications_user");
+        });
+
         modelBuilder.Entity<Notification>(entity =>
         {
-            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__20CF2E12894507EE");
+            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__20CF2E12D36CFA52");
 
             entity.ToTable("Notification");
 
@@ -50,7 +64,7 @@ public partial class IdleReservationsDbContext : DbContext
 
         modelBuilder.Entity<Promotion>(entity =>
         {
-            entity.HasKey(e => e.PromotionId).HasName("PK__Promotio__52C42FCF9119360B");
+            entity.HasKey(e => e.PromotionId).HasName("PK__Promotio__52C42FCFBAB9AF9E");
 
             entity.ToTable("Promotion");
 
@@ -64,7 +78,7 @@ public partial class IdleReservationsDbContext : DbContext
 
         modelBuilder.Entity<Reservation>(entity =>
         {
-            entity.HasKey(e => e.ReservationId).HasName("PK__Reservat__B7EE5F24A2B0C50F");
+            entity.HasKey(e => e.ReservationId).HasName("PK__Reservat__B7EE5F24B6F2E941");
 
             entity.ToTable("Reservation");
 
@@ -89,7 +103,7 @@ public partial class IdleReservationsDbContext : DbContext
 
         modelBuilder.Entity<Restaurant>(entity =>
         {
-            entity.HasKey(e => e.RestaurantId).HasName("PK__Restaura__87454C957F76A660");
+            entity.HasKey(e => e.RestaurantId).HasName("PK__Restaura__87454C95775ACD3B");
 
             entity.ToTable("Restaurant");
 
@@ -101,18 +115,18 @@ public partial class IdleReservationsDbContext : DbContext
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Role__8AFACE1AFEA47695");
+            entity.HasKey(e => e.RoleId).HasName("PK__Role__8AFACE1AFEEF6D62");
 
             entity.ToTable("Role");
 
-            entity.HasIndex(e => e.RoleName, "UQ__Role__8A2B6160C06DF94E").IsUnique();
+            entity.HasIndex(e => e.RoleName, "UQ__Role__8A2B616033B4B9B5").IsUnique();
 
             entity.Property(e => e.RoleName).HasMaxLength(100);
         });
 
         modelBuilder.Entity<Table>(entity =>
         {
-            entity.HasKey(e => e.TableId).HasName("PK__Table__7D5F01EE7E845E81");
+            entity.HasKey(e => e.TableId).HasName("PK__Table__7D5F01EEB6F3A742");
 
             entity.ToTable("Table");
 
@@ -123,16 +137,15 @@ public partial class IdleReservationsDbContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__User__1788CC4CEC3A5A62");
+            entity.HasKey(e => e.UserId).HasName("PK__User__1788CC4C5F1B04BC");
 
             entity.ToTable("User");
 
-            entity.HasIndex(e => e.Username, "UQ__User__536C85E41F60114F").IsUnique();
+            entity.HasIndex(e => e.Username, "UQ__User__536C85E48E62CEC0").IsUnique();
 
-            entity.HasIndex(e => e.Email, "UQ__User__A9D105346F5D8D41").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__User__A9D10534AD9D28DB").IsUnique();
 
             entity.Property(e => e.Email).HasMaxLength(255);
-            entity.Property(e => e.FcmToken).HasMaxLength(500);
             entity.Property(e => e.FirstName).HasMaxLength(100);
             entity.Property(e => e.LastName).HasMaxLength(100);
             entity.Property(e => e.PasswordHash).HasMaxLength(255);

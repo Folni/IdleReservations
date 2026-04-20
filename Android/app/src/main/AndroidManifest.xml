@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".IdleReservationsApp"
@@ -13,11 +14,12 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:autoHandwritingEnabled="false"
         android:theme="@style/Theme.IdleReservations">
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="APIKEYHERE" />
+            android:value="HIHIHIH" />
 
         <!-- Entry point: login screen, redirects to MainActivity if already logged in -->
         <activity
@@ -34,6 +36,17 @@
             android:name=".ui.main.MainActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.auth.RegisterActivity"
+            android:exported="false" />
+
+        <service
+            android:name=".firebase.IdleFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
     </application>
 

@@ -16,14 +16,14 @@ interface ReservationApiService {
     @POST("reservations")
     suspend fun createReservation(
         @Body body: CreateReservationRequest
-    ): Response<Unit>
+    ): Response<String>
 
     @PUT("reservations/{id}")
     suspend fun updateReservation(
         @Path("id") reservationId: Int,
         @Body body: UpdateReservationRequest
-    ): Response<ReservationDto>
+    ): Response<String>
 
     @PUT("reservations/cancel/{id}")
-    suspend fun cancelReservation(@Path("id") reservationId: Int): Response<Unit>
+    suspend fun cancelReservation(@Path("id") reservationId: Int): Response<String>
 }

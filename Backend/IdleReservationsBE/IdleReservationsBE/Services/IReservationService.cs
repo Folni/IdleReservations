@@ -10,5 +10,7 @@
         void Update(int id, ReservationCreateDto dto);
         void UpdateStatus(int id, string status);
         void Cancel(int id);
+
+        void PingUser(int userId);
     }
 }

@@ -19,9 +19,11 @@ public partial class User
 
     public string? LastName { get; set; }
 
+    public int LoyaltyPoints { get; set; }
+
     public int RoleId { get; set; }
 
-    public string? FcmToken { get; set; }
+    public virtual ICollection<FcmToken> FcmTokens { get; set; } = new List<FcmToken>();
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 

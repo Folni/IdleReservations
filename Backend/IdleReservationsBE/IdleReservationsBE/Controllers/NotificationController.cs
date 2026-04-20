@@ -20,21 +20,45 @@ namespace IdleReservationsBE.Controllers
         [HttpGet("user/{userId}")]
         public IActionResult GetByUser(int userId)
         {
-            return Ok(_service.GetByUser(userId));
+            try
+            {
+                return Ok(_service.GetByUser(userId));
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost]
         public IActionResult Create([FromBody] NotificationCreateDto dto)
         {
-            _service.Create(dto);
-            return Ok("Notification created");
+            try
+            {
+                _service.Create(dto);
+                return Ok("Notification created");
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPut("read/{id}")]
         public IActionResult MarkAsRead(int id)
         {
-            _service.MarkAsRead(id);
-            return Ok("Notification marked as read");
+            try
+            {
+                _service.MarkAsRead(id);
+                return Ok("Notification marked as read");
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
     }
 

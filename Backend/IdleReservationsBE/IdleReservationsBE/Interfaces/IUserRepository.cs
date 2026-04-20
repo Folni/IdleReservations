@@ -9,5 +9,7 @@ namespace IdleReservationsBE.Interfaces
         void Create(User user);
         void Update(User user);
         void Save();
+        int GetLoyaltyPoints(int userId);
+        int IncrementLoyaltyPoints(int userId, int amount = 10);
     }
 }
