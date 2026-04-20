@@ -10,11 +10,13 @@
     {
         private readonly IUserRepository _repo;
         private readonly IConfiguration _config;
+        private readonly ITokenRepository _token;
 
-        public UserService(IUserRepository repo, IConfiguration config)
+        public UserService(IUserRepository repo, IConfiguration config, ITokenRepository token)
         {
             _repo = repo;
             _config = config;
+            _token = token;
         }
 
         public UserResponseDto Register(UserRegisterDto dto)
@@ -98,19 +100,26 @@
         {
             var user = _repo.GetById(userId);
             if (user == null) throw new Exception("User not found");
+            _token.Create(new FcmToken
+            {
+                UserId = userId,
+                Token = token
+            });
+            _token.Save();
 
-            user.FcmToken = token;
-            _repo.Update(user);
         }
 
         public void RemoveFcmToken(int userId)
         {
             var user = _repo.GetById(userId);
             if (user == null) throw new Exception("User not found");
-
-            user.FcmToken = null;
-            _repo.Update(user);
+            _token.Delete(userId);
+            _token.Save();
         }
+
+        public int GetLoyaltyPoints(int userId) => _repo.GetLoyaltyPoints(userId);
+
+        public int IncrementLoyaltyPoints(int userId) => _repo.IncrementLoyaltyPoints(userId);
 
     }
 

@@ -40,6 +40,7 @@ class RestaurantDetailFragment : Fragment() {
         val restaurantId   = arguments?.getInt("restaurantId") ?: return
         val restaurantName = arguments?.getString("restaurantName") ?: ""
 
+        binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
         binding.tvName.text = restaurantName
 
         binding.btnBook.setOnClickListener {

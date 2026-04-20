@@ -9,7 +9,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.firebase.messaging.FirebaseMessaging
 import hr.algebra.idlereservations.databinding.ActivityLoginBinding
+import hr.algebra.idlereservations.firebase.IdleFirebaseMessagingService
 import hr.algebra.idlereservations.ui.main.MainActivity
 import hr.algebra.idlereservations.util.JwtManager
 import kotlinx.coroutines.launch
@@ -29,6 +31,10 @@ class LoginActivity : AppCompatActivity() {
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        binding.tvRegister.setOnClickListener {
+            startActivity(Intent(this, RegisterActivity::class.java))
+        }
 
         binding.btnLogin.setOnClickListener {
             val username = binding.etUsername.text.toString().trim()
@@ -52,6 +58,7 @@ class LoginActivity : AppCompatActivity() {
 
                         is LoginViewModel.UiState.Success -> {
                             JwtManager.saveToken(this@LoginActivity, state.token)
+                            sendFcmToken()
                             goToMain()
                         }
 
@@ -68,6 +75,13 @@ class LoginActivity : AppCompatActivity() {
     private fun setLoading(loading: Boolean) {
         binding.btnLogin.isEnabled = !loading
         binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
+    }
+
+    private fun sendFcmToken() {
+        val userId = JwtManager.getUserId(this) ?: return
+        FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+            IdleFirebaseMessagingService().sendTokenToBackend(userId, token)
+        }
     }
 
     private fun goToMain() {

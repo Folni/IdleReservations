@@ -20,21 +20,45 @@ namespace IdleReservationsBE.Controllers
         [HttpGet("restaurant/{restaurantId}")]
         public IActionResult GetByRestaurant(int restaurantId)
         {
-            return Ok(_service.GetByRestaurant(restaurantId));
+            try
+            {
+                return Ok(_service.GetByRestaurant(restaurantId));
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost]
         public IActionResult Create(PromotionCreateDto dto)
         {
-            _service.Create(dto);
-            return Ok("Promotion created");
+            try
+            {
+                _service.Create(dto);
+                return Ok("Promotion created");
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            _service.Delete(id);
-            return Ok("Promotion deleted");
+            try
+            {
+                _service.Delete(id);
+                return Ok("Promotion deleted");
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
     }
 

@@ -1,6 +1,8 @@
 package hr.algebra.idlereservations.data.repository
 
 import hr.algebra.idlereservations.data.model.LoginRequest
+import hr.algebra.idlereservations.data.model.RegisterRequest
+import hr.algebra.idlereservations.data.model.RegisterResponse
 import hr.algebra.idlereservations.data.network.AuthApiService
 import hr.algebra.idlereservations.network.RetrofitClient
 
@@ -17,6 +19,28 @@ class AuthRepository {
                 else Result.failure(Exception("Empty token in response"))
             } else {
                 Result.failure(Exception("Error ${response.code()}: ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun register(
+        username: String,
+        email: String,
+        password: String,
+        firstName: String,
+        lastName: String
+    ): Result<RegisterResponse> {
+        return try {
+            val response = api.register(RegisterRequest(username, email, password, firstName, lastName))
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) Result.success(body)
+                else Result.failure(Exception("Empty response"))
+            } else {
+                val errorMsg = response.errorBody()?.string()?.trim('"') ?: "Registration failed"
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)

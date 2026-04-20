@@ -11,6 +11,8 @@
 
         void SaveFcmToken(int userId, string token);
         void RemoveFcmToken(int userId);
+        int GetLoyaltyPoints(int userId);
+        int IncrementLoyaltyPoints(int userId);
 
     }
 

@@ -55,14 +55,25 @@ class HomeFragment : Fragment() {
             val popup = PopupMenu(requireContext(), binding.btnProfile)
             popup.menuInflater.inflate(R.menu.menu_profile, popup.menu)
             popup.setOnMenuItemClickListener { item ->
-                if (item.itemId == R.id.action_logout) {
-                    JwtManager.clearToken(requireContext())
-                    val intent = Intent(requireContext(), LoginActivity::class.java).apply {
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                when (item.itemId) {
+                    R.id.action_notifications -> {
+                        findNavController().navigate(R.id.action_home_to_notifications)
+                        true
                     }
-                    startActivity(intent)
-                    true
-                } else false
+                    R.id.action_loyalty -> {
+                        findNavController().navigate(R.id.action_home_to_profile)
+                        true
+                    }
+                    R.id.action_logout -> {
+                        JwtManager.clearToken(requireContext())
+                        val intent = Intent(requireContext(), LoginActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        }
+                        startActivity(intent)
+                        true
+                    }
+                    else -> false
+                }
             }
             popup.show()
         }

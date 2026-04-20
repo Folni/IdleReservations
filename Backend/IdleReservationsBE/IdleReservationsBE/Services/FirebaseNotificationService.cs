@@ -1,31 +1,42 @@
-﻿using Newtonsoft.Json;
-using System.Text;
+using FirebaseAdmin;
+using FirebaseAdmin.Messaging;
+using Google.Apis.Auth.OAuth2;
+using IdleReservationsBE.Interfaces;
+using IdleReservationsBE.Models;
 
 namespace IdleReservationsBE.Services
 {
     public class FirebaseNotificationService
     {
-        private readonly string _serverKey = "AIzaSyBOpTqYv_9HroW9TcZcENbdH2cyVAkabcs";
-        private readonly HttpClient _http = new HttpClient();
+        private readonly ITokenRepository _tokenRepo;
 
-        public async Task SendAsync(string token, string title, string body)
+        public FirebaseNotificationService(ITokenRepository tokenRepo, IWebHostEnvironment env)
         {
-            if (string.IsNullOrEmpty(token)) return;
+            _tokenRepo = tokenRepo;
 
-            var payload = new
+            if (FirebaseApp.DefaultInstance == null)
             {
-                to = token,
-                notification = new { title, body }
+                var keyPath = Path.Combine(env.ContentRootPath, "firebase-service-account.json");
+                FirebaseApp.Create(new AppOptions
+                {
+                    Credential = GoogleCredential.FromFile(keyPath)
+                });
+            }
+        }
+
+        public async Task SendAsync(int userId, string title, string body)
+        {
+            FcmToken fcmToken = _tokenRepo.GetByUser(userId);
+            if (fcmToken == null)
+                return;
+
+            var message = new Message
+            {
+                Token = fcmToken.Token,
+                Notification = new FirebaseAdmin.Messaging.Notification { Title = title, Body = body }
             };
 
-            var json = JsonConvert.SerializeObject(payload);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            _http.DefaultRequestHeaders.Clear();
-            _http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "key=" + _serverKey);
-
-            await _http.PostAsync("https://fcm.googleapis.com/fcm/send", content);
+            await FirebaseMessaging.DefaultInstance.SendAsync(message);
         }
     }
-
 }

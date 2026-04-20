@@ -24,6 +24,7 @@ fun RestaurantTableDto.toRestaurantTable() = RestaurantTable(
 data class ReservationDto(
     @SerializedName("reservationId")       val reservationId: Int,
     @SerializedName("userId")              val userId: Int,
+    @SerializedName("restaurantId")        val restaurantId: Int,
     @SerializedName("restaurantName")      val restaurantName: String?,
     @SerializedName("tableId")             val tableId: Int,
     @SerializedName("seats")               val seats: Int,
@@ -42,7 +43,9 @@ data class CreateReservationRequest(
 
 data class UpdateReservationRequest(
     @SerializedName("userId")              val userId: Int,
+    @SerializedName("restaurantId")        val restaurantId: Int,
     @SerializedName("reservationDateTime") val reservationDateTime: String,
+    @SerializedName("tableId")             val tableId: Int,
     @SerializedName("partySize")           val partySize: Int,
     @SerializedName("status")              val status: String
 )
@@ -51,6 +54,8 @@ enum class ReservationStatus { PENDING, CONFIRMED, CANCELLED, UNKNOWN }
 
 data class Reservation(
     val reservationId: Int,
+    val restaurantId: Int,
+    val tableId: Int,
     val restaurantName: String,
     val restaurantAddress: String,
     val tableSeats: Int,
@@ -61,6 +66,8 @@ data class Reservation(
 
 fun ReservationDto.toReservation() = Reservation(
     reservationId       = reservationId,
+    restaurantId = restaurantId,
+    tableId = tableId,
     restaurantName      = restaurantName ?: "Unknown restaurant",
     restaurantAddress   = "",
     tableSeats          = seats,

@@ -43,8 +43,8 @@ class MyReservationsViewModel : ViewModel() {
             repository.cancelReservation(
                 reservationId = reservation.reservationId
             ).fold(
-                onSuccess = {
-                    _event.value = "Reservation cancelled"
+                onSuccess = { message ->
+                    _event.value = message
                     val current = (_uiState.value as? UiState.Success)?.reservations ?: return@fold
                     _uiState.value = UiState.Success(current.map {
                         if (it.reservationId == reservation.reservationId)
@@ -52,7 +52,7 @@ class MyReservationsViewModel : ViewModel() {
                         else it
                     })
                 },
-                onFailure = { _event.value = "Failed to cancel: ${it.message}" }
+                onFailure = { _event.value = it.message ?: "Failed to cancel" }
             )
         }
     }
@@ -60,20 +60,19 @@ class MyReservationsViewModel : ViewModel() {
     fun editReservation(reservation: Reservation, newDateTime: String, newPartySize: Int) {
         viewModelScope.launch {
             repository.editReservation(
+                restaurantId= reservation.restaurantId,
                 reservationId = reservation.reservationId,
                 userId        = currentUserId,
                 newDateTime   = newDateTime,
                 newPartySize  = newPartySize,
+                tableId = reservation.tableId,
                 currentStatus = reservation.status.name.lowercase().replaceFirstChar { it.uppercase() }
             ).fold(
-                onSuccess = { updated ->
-                    _event.value = "Reservation updated"
-                    val current = (_uiState.value as? UiState.Success)?.reservations ?: return@fold
-                    _uiState.value = UiState.Success(current.map {
-                        if (it.reservationId == updated.reservationId) updated else it
-                    })
+                onSuccess = { message ->
+                    _event.value = message
+                    loadReservations(currentUserId)
                 },
-                onFailure = { _event.value = "Failed to update: ${it.message}" }
+                onFailure = { _event.value = it.message ?: "Failed to update" }
             )
         }
     }

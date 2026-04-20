@@ -54,6 +54,7 @@ class BookingFragment : Fragment() {
         val restaurantName = arguments?.getString("restaurantName") ?: ""
         workingHours       = arguments?.getString("workingHours")?.takeIf { it.isNotBlank() }
 
+        binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
         binding.tvRestaurantName.text = restaurantName
         binding.etDateTime.setText(selectedDateTime.format(displayFormatter))
         binding.etDateTime.setOnClickListener { showDateTimePicker() }
@@ -115,7 +116,7 @@ class BookingFragment : Fragment() {
                 is BookingViewModel.UiState.Idle    -> setLoading(false)
                 is BookingViewModel.UiState.Loading -> setLoading(true)
                 is BookingViewModel.UiState.Success -> {
-                    Toast.makeText(requireContext(), "Reservation confirmed!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
                     findNavController().popBackStack()
                 }
                 is BookingViewModel.UiState.Error -> {

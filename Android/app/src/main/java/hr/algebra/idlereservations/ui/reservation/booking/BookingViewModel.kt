@@ -16,7 +16,7 @@ class BookingViewModel : ViewModel() {
     sealed class UiState {
         object Idle    : UiState()
         object Loading : UiState()
-        object Success : UiState()
+        data class Success(val message: String) : UiState()
         data class Error(val message: String) : UiState()
     }
 
@@ -46,7 +46,7 @@ class BookingViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.value = UiState.Loading
             repository.createReservation(userId, restaurantId, tableId, dateTime, partySize).fold(
-                onSuccess = { _uiState.value = UiState.Success },
+                onSuccess = { _uiState.value = UiState.Success(it) },
                 onFailure = { _uiState.value = UiState.Error(it.message ?: "Booking failed") }
             )
         }

@@ -42,6 +42,22 @@
         {
             _context.SaveChanges();
         }
+
+        public int GetLoyaltyPoints(int userId)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
+            if (user == null) throw new Exception("User not found");
+            return user.LoyaltyPoints;
+        }
+
+        public int IncrementLoyaltyPoints(int userId, int amount = 10)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
+            if (user == null) throw new Exception("User not found");
+            user.LoyaltyPoints += amount;
+            _context.SaveChanges();
+            return user.LoyaltyPoints;
+        }
     }
 
 }
