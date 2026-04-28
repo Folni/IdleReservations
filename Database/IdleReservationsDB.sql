@@ -31,7 +31,7 @@ CREATE TABLE [User] (
     Salt NVARCHAR(255) NOT NULL,
     FirstName NVARCHAR(100),
     LastName NVARCHAR(100),
-	LoyaltyPoints INT NOT NULL DEFAULT 0,
+	LoyaltyPoints INT DEFAULT 0,
     RoleId INT NOT NULL,
     CONSTRAINT fk_user_role FOREIGN KEY (RoleId) REFERENCES Role(RoleId)
 );
