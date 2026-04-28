@@ -36,7 +36,8 @@
                 LastName = dto.LastName,
                 PasswordHash = hash,
                 Salt = salt,
-                RoleId = 2 // default User role
+                RoleId = 2, // default User role
+                LoyaltyPoints = 0
             };
 
             _repo.Create(user);
