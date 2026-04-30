@@ -9,13 +9,10 @@ import { getAllRestaurants } from "../api/restaurantsApi.js";
 import { getAllTables, getTablesByRestaurant } from "../api/tablesApi.js";
 import { showToast } from "../elements/toast.js";
 
-document.getElementById("nav").innerHTML = renderNav();
-document.getElementById("footer").innerHTML = renderFooter();
-
+const nav = document.getElementById("nav");
+const footer = document.getElementById("footer");
 const content = document.getElementById("reservations-content");
-const createReservationForm = document.getElementById(
-  "create-reservation-form",
-);
+const createReservationForm = document.getElementById("create-reservation-form");
 const formMessage = document.getElementById("reservation-form-message");
 const restaurantSelect = document.getElementById("reservation-restaurant-id");
 const tableSelect = document.getElementById("reservation-table-id");
@@ -25,12 +22,18 @@ let restaurantsState = [];
 let tablesState = [];
 let allTablesState = [];
 
-//  Set minimum date to NOW
-dateInput.min = new Date().toISOString().slice(0, 16);
+if (nav) nav.innerHTML = renderNav();
+if (footer) footer.innerHTML = renderFooter();
+if (dateInput) dateInput.min = toDatetimeLocalValue(new Date());
 
 init();
 
 async function init() {
+  if (!content) {
+    console.error("Nedostaje element #reservations-content u reservations.html");
+    return;
+  }
+
   if (!isLoggedIn()) {
     renderUnauthorized();
     return;
@@ -46,7 +49,7 @@ function bindEvents() {
   restaurantSelect?.addEventListener("change", handleRestaurantChange);
 
   document.addEventListener("click", (event) => {
-    if (event.target && event.target.id === "retry-btn") {
+    if (event.target?.id === "retry-btn") {
       loadReservations();
     }
   });
@@ -59,12 +62,12 @@ async function loadLookupData() {
       getAllTables(),
     ]);
 
-    restaurantsState = Array.isArray(restaurants) ? restaurants : [];
-    allTablesState = Array.isArray(tables) ? tables : [];
+    restaurantsState = normalizeList(restaurants);
+    allTablesState = normalizeList(tables);
     renderRestaurantOptions();
   } catch (error) {
-    console.error(error);
-    showToast("Greška pri dohvaćanju pomoćnih podataka.", "error");
+    console.error("Greška pri dohvaćanju pomoćnih podataka:", error);
+    showToast(getErrorMessage(error, "Greška pri dohvaćanju pomoćnih podataka."), "error");
   }
 }
 
@@ -72,33 +75,46 @@ async function loadReservations() {
   content.innerHTML = renderLoading();
 
   try {
-    const reservations = await getAllReservations();
+    const reservationsResponse = await getAllReservations();
+    const reservations = normalizeList(reservationsResponse);
     const userReservations = filterMyReservations(reservations);
     const enrichedReservations = enrichReservations(userReservations);
 
     content.innerHTML = renderReservationsTable(enrichedReservations);
   } catch (error) {
-    console.error(error);
+    console.error("Greška pri dohvaćanju rezervacija:", error);
     content.innerHTML = renderError(error);
+    showToast(getErrorMessage(error, "Greška pri dohvaćanju rezervacija."), "error");
   }
 }
 
 function enrichReservations(reservations) {
-  return reservations.map((reservation) => {
-    const restaurantId = reservation.restaurantId ?? null;
-    const tableId = reservation.tableId ?? null;
+  return normalizeList(reservations).map((reservation) => {
+    const restaurantId =
+      reservation.restaurantId ??
+      reservation.RestaurantId ??
+      reservation.restaurant?.restaurantId ??
+      reservation.restaurant?.id ??
+      null;
+
+    const tableId =
+      reservation.tableId ??
+      reservation.TableId ??
+      reservation.table?.tableId ??
+      reservation.table?.id ??
+      null;
 
     return {
       ...reservation,
-      restaurantName: getRestaurantName(restaurantId),
-      tableLabel: getTableLabel(tableId),
+      restaurantName: reservation.restaurantName ?? getRestaurantName(restaurantId),
+      tableLabel: reservation.tableLabel ?? getTableLabel(tableId),
     };
   });
 }
 
 function getRestaurantName(restaurantId) {
   const restaurant = restaurantsState.find(
-    (r) => String(r.restaurantId ?? r.id) === String(restaurantId),
+    (item) => String(item.restaurantId ?? item.id ?? item.RestaurantId) === String(restaurantId),
   );
 
   return restaurant?.name || `Restoran ${restaurantId ?? "-"}`;
@@ -106,23 +122,24 @@ function getRestaurantName(restaurantId) {
 
 function getTableLabel(tableId) {
   const table = allTablesState.find(
-    (t) => String(t.tableId ?? t.id) === String(tableId),
+    (item) => String(item.tableId ?? item.id ?? item.TableId) === String(tableId),
   );
 
   if (!table) {
     return `Stol ${tableId ?? "-"}`;
   }
 
-  const seats = table.seats ?? "-";
-  return `${seats} mjesta`;
+  return `${table.seats ?? table.Seats ?? "-"} mjesta`;
 }
 
 function renderRestaurantOptions() {
+  if (!restaurantSelect) return;
+
   const options = restaurantsState
     .map((restaurant) => {
-      const id = restaurant.restaurantId ?? restaurant.id;
+      const id = restaurant.restaurantId ?? restaurant.id ?? restaurant.RestaurantId;
       const name = restaurant.name ?? `Restoran ${id}`;
-      return `<option value="${id}">${escapeHtml(name)}</option>`;
+      return `<option value="${escapeHtml(id)}">${escapeHtml(name)}</option>`;
     })
     .join("");
 
@@ -133,7 +150,7 @@ function renderRestaurantOptions() {
 }
 
 async function handleRestaurantChange() {
-  const restaurantId = restaurantSelect.value;
+  const restaurantId = restaurantSelect?.value;
 
   if (!restaurantId) {
     tablesState = [];
@@ -143,29 +160,29 @@ async function handleRestaurantChange() {
 
   try {
     const tables = await getTablesByRestaurant(restaurantId);
-    tablesState = Array.isArray(tables) ? tables : [];
+    tablesState = normalizeList(tables);
     renderTableOptions();
   } catch (error) {
-    console.error(error);
+    console.error("Greška pri dohvaćanju stolova:", error);
     tablesState = [];
     renderTableOptions();
-    showToast("Greška pri dohvaćanju stolova.", "error");
+    showToast(getErrorMessage(error, "Greška pri dohvaćanju stolova."), "error");
   }
 }
 
 function renderTableOptions() {
+  if (!tableSelect) return;
+
   if (!tablesState.length) {
-    tableSelect.innerHTML = `
-      <option value="">Nema dostupnih stolova</option>
-    `;
+    tableSelect.innerHTML = `<option value="">Nema dostupnih stolova</option>`;
     return;
   }
 
   const options = tablesState
     .map((table) => {
-      const id = table.tableId ?? table.id;
-      const seats = table.seats ?? "-";
-      return `<option value="${id}">${seats} mjesta</option>`;
+      const id = table.tableId ?? table.id ?? table.TableId;
+      const seats = table.seats ?? table.Seats ?? "-";
+      return `<option value="${escapeHtml(id)}">${escapeHtml(seats)} mjesta</option>`;
     })
     .join("");
 
@@ -179,50 +196,32 @@ async function handleCreateReservation(event) {
   event.preventDefault();
   clearFormMessage();
 
-  const restaurantId = restaurantSelect.value.trim();
-  const tableId = tableSelect.value.trim();
-  const reservationDateTime = dateInput.value.trim();
-  const partySize = document
-    .getElementById("reservation-party-size")
-    .value.trim();
+  const restaurantId = restaurantSelect?.value.trim() ?? "";
+  const tableId = tableSelect?.value.trim() ?? "";
+  const reservationDateTime = dateInput?.value.trim() ?? "";
+  const partySize = document.getElementById("reservation-party-size")?.value.trim() ?? "";
 
   if (!restaurantId || !tableId || !reservationDateTime || !partySize) {
     setFormMessage("Sva polja su obavezna.", "danger");
     return;
   }
 
-  //  past date
   if (new Date(reservationDateTime) < new Date()) {
     setFormMessage("Ne možeš rezervirati u prošlosti.", "danger");
     return;
   }
 
-  //  party size > table seats
   const selectedTable = tablesState.find(
-    (t) => String(t.tableId ?? t.id) === String(tableId),
+    (table) => String(table.tableId ?? table.id ?? table.TableId) === String(tableId),
   );
 
-  if (selectedTable && Number(partySize) > selectedTable.seats) {
-    setFormMessage(
-      `Maksimalan broj osoba za ovaj stol je ${selectedTable.seats}.`,
-      "danger",
-    );
+  const seats = Number(selectedTable?.seats ?? selectedTable?.Seats ?? 0);
+  if (seats && Number(partySize) > seats) {
+    setFormMessage(`Maksimalan broj osoba za ovaj stol je ${seats}.`, "danger");
     return;
   }
 
-  const tokenPayload = getTokenPayload();
-
-  const userId =
-    tokenPayload?.userId ||
-    tokenPayload?.nameid ||
-    tokenPayload?.[
-      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
-    ] ||
-    tokenPayload?.[
-      "http://schemas.microsoft.com/ws/2008/06/identity/claims/nameidentifier"
-    ] ||
-    null;
-
+  const userId = getUserIdFromToken();
   if (!userId) {
     setFormMessage("Nije moguće odrediti korisnika iz tokena.", "danger");
     return;
@@ -239,28 +238,27 @@ async function handleCreateReservation(event) {
   try {
     await createReservation(payload);
     showToast("Rezervacija uspješno kreirana.", "success");
-    createReservationForm.reset();
+
+    createReservationForm?.reset();
     tablesState = [];
     renderTableOptions();
 
     const modalElement = document.getElementById("createReservationModal");
-    const modalInstance = bootstrap.Modal.getInstance(modalElement);
-    modalInstance?.hide();
+    if (modalElement && window.bootstrap?.Modal) {
+      const modalInstance = window.bootstrap.Modal.getInstance(modalElement);
+      modalInstance?.hide();
+    }
 
     await loadReservations();
   } catch (error) {
-    const msg =
-      error?.response?.data ||
-      error?.message ||
-      "Greška pri kreiranju rezervacije.";
-
+    const msg = getErrorMessage(error, "Greška pri kreiranju rezervacije.");
     setFormMessage(msg, "danger");
     showToast(msg, "error");
   }
 }
 
 function isLoggedIn() {
-  return !!localStorage.getItem("authToken");
+  return Boolean(localStorage.getItem("authToken"));
 }
 
 function getTokenPayload() {
@@ -269,66 +267,71 @@ function getTokenPayload() {
 
   try {
     const base64Url = token.split(".")[1];
+    if (!base64Url) return null;
+
     const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = base64.padEnd(
-      base64.length + ((4 - (base64.length % 4)) % 4),
-      "=",
-    );
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
     return JSON.parse(atob(padded));
-  } catch (error) {
+  } catch {
     return null;
   }
 }
 
-function filterMyReservations(reservations) {
-  if (!Array.isArray(reservations)) return [];
-
+function getUserIdFromToken() {
   const payload = getTokenPayload();
-  if (!payload) return [];
+  if (!payload) return null;
 
-  const username =
-    payload.unique_name ||
-    payload.sub ||
-    payload.username ||
-    payload.email ||
-    null;
-
-  const userId =
-    payload.nameid ||
-    payload[
-      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
-    ] ||
+  return (
     payload.userId ||
     payload.userid ||
     payload.id ||
-    null;
+    payload.nameid ||
+    payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] ||
+    payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/nameidentifier"] ||
+    null
+  );
+}
 
-  return reservations.filter((reservation) => {
-    const reservationUserName =
+function filterMyReservations(reservations) {
+  const list = normalizeList(reservations);
+  const payload = getTokenPayload();
+  if (!payload) return [];
+
+  const username = String(
+    payload.unique_name ||
+      payload.username ||
+      payload.email ||
+      payload.sub ||
+      ""
+  ).toLowerCase();
+
+  const userId = String(getUserIdFromToken() ?? "");
+
+  return list.filter((reservation) => {
+    const reservationUserName = String(
       reservation.userName ||
-      reservation.username ||
-      reservation.email ||
-      reservation.user ||
-      null;
+        reservation.username ||
+        reservation.UserName ||
+        reservation.email ||
+        reservation.user?.userName ||
+        reservation.user?.username ||
+        reservation.user?.email ||
+        ""
+    ).toLowerCase();
 
-    const reservationUserId =
+    const reservationUserId = String(
       reservation.userId ||
-      reservation.applicationUserId ||
-      reservation.appUserId ||
-      reservation.idUser ||
-      reservation.user?.userId ||
-      null;
+        reservation.UserId ||
+        reservation.applicationUserId ||
+        reservation.appUserId ||
+        reservation.idUser ||
+        reservation.user?.userId ||
+        reservation.user?.id ||
+        ""
+    );
 
-    const matchesByUsername =
-      username &&
-      reservationUserName &&
-      String(reservationUserName).toLowerCase() ===
-        String(username).toLowerCase();
-
-    const matchesByUserId =
-      userId &&
-      reservationUserId &&
-      String(reservationUserId) === String(userId);
+    const matchesByUsername = username && reservationUserName && reservationUserName === username;
+    const matchesByUserId = userId && reservationUserId && reservationUserId === userId;
 
     return matchesByUsername || matchesByUserId;
   });
@@ -354,21 +357,53 @@ function renderLoading() {
 }
 
 function renderError(error) {
+  const message = getErrorMessage(error, "Dogodila se neočekivana greška.");
+
   return `
     <div class="state-card error-state">
       <h3>Greška pri dohvaćanju rezervacija</h3>
-      <p>${error.message || "Dogodila se neočekivana greška."}</p>
+      <p>${escapeHtml(message)}</p>
       <button class="btn btn-primary-custom mt-2" id="retry-btn">Pokušaj ponovno</button>
     </div>
   `;
 }
 
 function setFormMessage(message, type = "danger") {
-  formMessage.innerHTML = `<div class="alert alert-${type} mb-0">${message}</div>`;
+  if (!formMessage) return;
+  formMessage.innerHTML = `<div class="alert alert-${type} mb-0">${escapeHtml(message)}</div>`;
 }
 
 function clearFormMessage() {
+  if (!formMessage) return;
   formMessage.innerHTML = "";
+}
+
+function normalizeList(data) {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.data)) return data.data;
+  if (Array.isArray(data?.items)) return data.items;
+  if (Array.isArray(data?.$values)) return data.$values;
+  return [];
+}
+
+function getErrorMessage(error, fallback) {
+  if (typeof error === "string") return error;
+  if (typeof error?.response?.data === "string") return error.response.data;
+  if (typeof error?.data === "string") return error.data;
+  return error?.message || fallback;
+}
+
+function toDatetimeLocalValue(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
 function escapeHtml(value) {

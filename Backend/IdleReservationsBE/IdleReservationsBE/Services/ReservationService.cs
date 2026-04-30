@@ -10,21 +10,18 @@
         private readonly IRestaurantRepository _restaurantRepo;
         private readonly ITableRepository _tableRepo;
         private readonly IUserRepository _userRepo;
-        private readonly FirebaseNotificationService _firebase;
 
         public ReservationService(
             IReservationRepository repo,
             IRestaurantRepository restaurantRepo,
             ITableRepository tableRepo,
-            IUserRepository userRepo,
-            FirebaseNotificationService firebase
+            IUserRepository userRepo
             )
         {
             _repo = repo;
             _restaurantRepo = restaurantRepo;
             _tableRepo = tableRepo;
             _userRepo = userRepo;
-            _firebase = firebase;
         }
 
         public IEnumerable<ReservationResponseDto> GetAll()
@@ -41,7 +38,7 @@
                 ReservationDateTime = r.ReservationDateTime,
                 PartySize = r.PartySize,
                 Status = r.Status
-            });
+            }).ToList();
         }
 
         public ReservationResponseDto GetById(int id)
@@ -84,7 +81,7 @@
 
             if (dto.ReservationDateTime < DateTime.Now)
                 throw new Exception("Cannot create reservation in the past");
-            
+
             if (dto.PartySize > table.Seats)
                 throw new Exception("Party size exceeds table capacity");
 
@@ -110,7 +107,6 @@
 
             _repo.Create(reservation);
             _repo.Save();
-
         }
 
         public void Update(int id, ReservationCreateDto dto)
@@ -134,17 +130,14 @@
             if (table.RestaurantId != dto.RestaurantId)
                 throw new Exception("Table does not belong to this restaurant");
 
-            //  zabrana prošlih datuma
             if (dto.ReservationDateTime < DateTime.Now)
                 throw new Exception("Cannot update reservation to a past time");
 
-            //  party size > table capacity
             if (dto.PartySize > table.Seats)
                 throw new Exception("Party size exceeds table capacity");
 
             var reservations = _repo.GetByTable(dto.TableId);
 
-            //  stroža provjera zauzetosti
             bool isTaken = reservations.Any(r =>
                 r.ReservationId != id &&
                 r.ReservationDateTime == dto.ReservationDateTime &&
@@ -162,8 +155,6 @@
 
             _repo.Update(reservation);
             _repo.Save();
-
-
         }
 
         public void UpdateStatus(int id, string status)
@@ -173,12 +164,9 @@
                 throw new Exception("Reservation not found");
 
             reservation.Status = status;
+
             _repo.Update(reservation);
             _repo.Save();
-
-            var user = _userRepo.GetById(reservation.UserId);
-
-
         }
 
         public void Cancel(int id)
@@ -191,14 +179,11 @@
 
             _repo.Update(r);
             _repo.Save();
-
-            var user = _userRepo.GetById(r.UserId);
         }
 
         public void PingUser(int userId)
         {
-            _firebase.SendAsync(userId, "Ping from IdleReservations", "This is a test notification").Wait();
-            Console.WriteLine($"Aga");
+            Console.WriteLine("Firebase is disabled because firebase-service-account.json is missing.");
         }
     }
 }

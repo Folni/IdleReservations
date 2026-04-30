@@ -8,18 +8,17 @@
     head.appendChild(link);
   }
 
-  function addJs(src) {
+  function addJS(src) {
     const script = document.createElement("script");
     script.src = src;
     script.defer = true;
     head.appendChild(script);
   }
 
-  // BOOTSTRAP (from node_modules)
-  addCss("./node_modules/bootstrap/dist/css/bootstrap.min.css");
-  addJs("./node_modules/bootstrap/dist/js/bootstrap.bundle.min.js");
+  // BOOTSTRAP lokalno iz vendor foldera
+  addCss("./vendor/bootstrap/bootstrap.min.css");
+  addJS("./vendor/bootstrap/bootstrap.bundle.min.js");
 
-  //  CSS
+  // CSS
   addCss("./css/styles.css");
-
 })();

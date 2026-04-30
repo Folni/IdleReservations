@@ -27,15 +27,20 @@
             <div class="profile-card">
               <h2 class="profile-card-title">Osnovni podaci</h2>
 
-              <div class="profile-info-row">
-                <span class="profile-label">Korisničko ime</span>
-                <span id="profile-username" class="profile-value">-</span>
-              </div>
+<div class="profile-info-row">
+  <span class="profile-label">Korisničko ime</span>
+  <span id="profile-username" class="profile-value">-</span>
+</div>
 
-              <div class="profile-info-row">
-                <span class="profile-label">Uloga</span>
-                <span id="profile-role" class="profile-value">-</span>
-              </div>
+<div class="profile-info-row">
+  <span class="profile-label">Uloga</span>
+  <span id="profile-role" class="profile-value">-</span>
+</div>
+
+<div class="profile-info-row">
+  <span class="profile-label">Loyalty bodovi</span>
+  <span id="profile-loyalty-points" class="profile-value">Učitavanje...</span>
+</div>
             </div>
           </div>
 
@@ -63,6 +68,18 @@
               <div id="change-password-message" class="form-message mt-3"></div>
             </div>
           </div>
+          <div class="profile-card mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="profile-card-title mb-0">Povijest notifikacija</h2>
+    <button type="button" class="btn btn-outline-secondary btn-sm" id="refresh-notifications-btn">
+      Osvježi
+    </button>
+  </div>
+
+  <div id="notifications-history">
+    <p class="text-muted mb-0">Učitavanje notifikacija...</p>
+  </div>
+</div>
         </div>
       </div>
     </section>

@@ -112,3 +112,20 @@ function extractErrorMessage(result, fallbackMessage) {
 
   return fallbackMessage;
 }
+
+export async function getLoyaltyPoints(userId) {
+  const response = await fetch(`${BASE_URL}/loyalty/${userId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const result = await parseResponse(response);
+
+  if (!response.ok) {
+    throw new Error(extractErrorMessage(result, "Neuspješno dohvaćanje loyalty bodova."));
+  }
+
+  return result;
+}

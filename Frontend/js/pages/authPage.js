@@ -3,17 +3,18 @@ import { renderFooter } from "../elements/footer.js";
 import { loginUser, registerUser } from "../api/authApi.js";
 import { showToast } from "../elements/toast.js";
 
-document.getElementById("nav").innerHTML = renderNav();
-document.getElementById("footer").innerHTML = renderFooter();
-
+const nav = document.getElementById("nav");
+const footer = document.getElementById("footer");
 const loginForm = document.getElementById("login-form");
 const registerForm = document.getElementById("register-form");
-
 const loginMessage = document.getElementById("login-message");
 const registerMessage = document.getElementById("register-message");
 
-loginForm.addEventListener("submit", handleLogin);
-registerForm.addEventListener("submit", handleRegister);
+if (nav) nav.innerHTML = renderNav();
+if (footer) footer.innerHTML = renderFooter();
+
+loginForm?.addEventListener("submit", handleLogin);
+registerForm?.addEventListener("submit", handleRegister);
 
 async function handleLogin(event) {
   event.preventDefault();
@@ -22,33 +23,38 @@ async function handleLogin(event) {
   setLoading(loginForm, true);
 
   const payload = {
-    username: document.getElementById("login-username").value.trim(),
-    password: document.getElementById("login-password").value.trim(),
+    username: document.getElementById("login-username")?.value.trim() ?? "",
+    password: document.getElementById("login-password")?.value.trim() ?? "",
   };
 
-try {
-  const result = await loginUser(payload);
-
-  const token = typeof result === "string" ? result : result.token;
-
-  if (!token) {
-    throw new Error("Token nije vraćen s backenda.");
+  if (!payload.username || !payload.password) {
+    showError(loginMessage, "Korisničko ime i lozinka su obavezni.");
+    showToast("Korisničko ime i lozinka su obavezni.", "warning");
+    setLoading(loginForm, false);
+    return;
   }
 
-  localStorage.setItem("authToken", token);
+  try {
+    const result = await loginUser(payload);
+    const token = typeof result === "string" ? result : result?.token;
 
-  showSuccess(loginMessage, "Prijava uspješna.");
-  showToast("Uspješna prijava.", "success");
+    if (!token) {
+      throw new Error("Token nije vraćen s backenda.");
+    }
 
-  setTimeout(() => {
-    window.location.href = "./index.html";
-  }, 600);
-} catch (error) {
-  showError(loginMessage, error.message || "Neuspješna prijava.");
-  showToast(error.message || "Neuspješna prijava.", "error");
-} finally {
-  setLoading(loginForm, false);
-}
+    localStorage.setItem("authToken", token);
+    showSuccess(loginMessage, "Prijava uspješna.");
+    showToast("Uspješna prijava.", "success");
+
+    setTimeout(() => {
+      window.location.href = "./index.html";
+    }, 600);
+  } catch (error) {
+    showError(loginMessage, error.message || "Neuspješna prijava.");
+    showToast(error.message || "Neuspješna prijava.", "error");
+  } finally {
+    setLoading(loginForm, false);
+  }
 }
 
 async function handleRegister(event) {
@@ -58,53 +64,60 @@ async function handleRegister(event) {
   setLoading(registerForm, true);
 
   const payload = {
-    username: document.getElementById("register-username").value.trim(),
-    email: document.getElementById("register-email").value.trim(),
-    password: document.getElementById("register-password").value.trim(),
-    firstName: document.getElementById("register-firstname").value.trim(),
-    lastName: document.getElementById("register-lastname").value.trim(),
+    username: document.getElementById("register-username")?.value.trim() ?? "",
+    email: document.getElementById("register-email")?.value.trim() ?? "",
+    password: document.getElementById("register-password")?.value.trim() ?? "",
+    firstName: document.getElementById("register-firstname")?.value.trim() ?? "",
+    lastName: document.getElementById("register-lastname")?.value.trim() ?? "",
   };
 
-try {
-  const result = await registerUser(payload);
+  if (!payload.username || !payload.email || !payload.password) {
+    showError(registerMessage, "Korisničko ime, email i lozinka su obavezni.");
+    showToast("Korisničko ime, email i lozinka su obavezni.", "warning");
+    setLoading(registerForm, false);
+    return;
+  }
 
-  showSuccess(registerMessage, "Registracija uspješna.");
-  showToast("Registracija uspješna.", "success");
+  try {
+    await registerUser(payload);
+    showSuccess(registerMessage, "Registracija uspješna.");
+    showToast("Registracija uspješna.", "success");
+    registerForm.reset();
 
-  registerForm.reset();
-
-  setTimeout(() => {
-    window.location.href = "./index.html";
-  }, 600);
-} catch (error) {
-  console.error("Register error:", error);
-  showError(registerMessage, error.message || "Neuspješna registracija.");
-  showToast(error.message || "Neuspješna registracija.", "error");
-} finally {
-  setLoading(registerForm, false);
-}
+    setTimeout(() => {
+      window.location.href = "./index.html";
+    }, 600);
+  } catch (error) {
+    console.error("Register error:", error);
+    showError(registerMessage, error.message || "Neuspješna registracija.");
+    showToast(error.message || "Neuspješna registracija.", "error");
+  } finally {
+    setLoading(registerForm, false);
+  }
 }
 
 function showSuccess(element, message) {
+  if (!element) return;
   element.textContent = message;
   element.classList.remove("error");
   element.classList.add("success");
 }
 
 function showError(element, message) {
+  if (!element) return;
   element.textContent = message;
   element.classList.remove("success");
   element.classList.add("error");
 }
 
 function clearMessage(element) {
+  if (!element) return;
   element.textContent = "";
   element.classList.remove("success", "error");
 }
 
 function setLoading(form, isLoading) {
-  const button = form.querySelector('button[type="submit"]');
-
+  const button = form?.querySelector('button[type="submit"]');
   if (!button) return;
 
   button.disabled = isLoading;
