@@ -21,6 +21,10 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x Android/gradlew
 
+      - name: Create dummy google-services.json
+        run: |
+          echo '{"project_info":{"project_number":"123","project_id":"id","storage_bucket":"b"},"client":[{"client_info":{"mobilesdk_app_id":"1:1:android:1","android_client_info":{"package_name":"hr.algebra.idlereservations"}},"api_key":[{"current_key":"key"}],"services":{"appinvite_service":{"other_platform_oauth_client":[]}}}] ,"configuration_version":"1"}' > Android/app/google-services.json
+
       - name: Run Android Unit Tests
         run: cd Android && ./gradlew testDebugUnitTest
 
