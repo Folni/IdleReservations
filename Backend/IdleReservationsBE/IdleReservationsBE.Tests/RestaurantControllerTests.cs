@@ -22,7 +22,7 @@ namespace IdleReservationsBE.Tests
         [Fact]
         public void GetAll_ReturnsOk()
         {
-            _serviceMock.Setup(s => s.GetAll()).Returns(new List<Restaurant>());
+            _serviceMock.Setup(s => s.GetAll()).Returns(new List<RestaurantResponseDto>());
             var result = _controller.GetAll();
             Assert.IsType<OkObjectResult>(result);
         }
@@ -30,7 +30,7 @@ namespace IdleReservationsBE.Tests
         [Fact]
         public void GetById_ReturnsOk_WhenExists()
         {
-            _serviceMock.Setup(s => s.GetById(1)).Returns(new Restaurant { Id = 1 });
+            _serviceMock.Setup(s => s.GetById(1)).Returns(new RestaurantResponseDto { RestaurantId = 1 });
             var result = _controller.GetById(1);
             Assert.IsType<OkObjectResult>(result);
         }

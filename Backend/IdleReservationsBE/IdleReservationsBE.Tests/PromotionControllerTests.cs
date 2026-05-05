@@ -1,7 +1,6 @@
 using IdleReservationsBE.Controllers;
 using IdleReservationsBE.DTO;
 using IdleReservationsBE.Services;
-using IdleReservationsBE.Models;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Xunit;
@@ -22,7 +21,7 @@ namespace IdleReservationsBE.Tests
         [Fact]
         public void GetByRestaurant_ReturnsOk()
         {
-            _serviceMock.Setup(s => s.GetByRestaurant(1)).Returns(new List<Promotion>());
+            _serviceMock.Setup(s => s.GetByRestaurant(1)).Returns(new List<PromotionResponseDto>());
             var result = _controller.GetByRestaurant(1);
             Assert.IsType<OkObjectResult>(result);
         }

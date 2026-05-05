@@ -22,7 +22,7 @@ namespace IdleReservationsBE.Tests
         public void Register_ReturnsOk_WhenSuccessful()
         {
             var dto = new UserRegisterDto { Username = "test", Email = "test@test.com" };
-            _userServiceMock.Setup(s => s.Register(dto)).Returns(new { Success = true });
+            _userServiceMock.Setup(s => s.Register(dto)).Returns(new UserResponseDto { Username = "test" });
 
             var result = _controller.Register(dto);
 
