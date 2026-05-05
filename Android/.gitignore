@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+# Firebase/Google secrets
+firebase-service-account.json
+google-services.json

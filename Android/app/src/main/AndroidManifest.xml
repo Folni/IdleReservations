@@ -19,7 +19,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="HIHIHIH" />
+            android:value="AIzaSyAknoiS3Dm7RqBRdQkdi5KxyCxxpjDASaY" />
 
         <!-- Entry point: login screen, redirects to MainActivity if already logged in -->
         <activity

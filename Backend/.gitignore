@@ -22,3 +22,7 @@ Thumbs.db
 
 # Publish
 publish/
+
+# Firebase/Google secrets
+firebase-service-account.json
+google-services.json
