@@ -16,3 +16,10 @@ Thumbs.db
 # Build output (if you add bundler later)
 dist/
 build/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

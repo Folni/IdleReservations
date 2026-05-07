@@ -80,10 +80,25 @@ namespace IdleReservationsBE.Services
 
                 if (fcmToken != null)
                 {
-                    await firebase.SendAsync(user.UserId, title, body);
-                    _logger.LogInformation("Push sent to user {UserId} for reservation {ReservationId}.", user.UserId, reservation.ReservationId);
-                    SaveNotification(notifications, user.UserId, title, body);
-                    _notifiedReservationIds.Add(reservation.ReservationId);
+                    try
+                    {
+                        await firebase.SendAsync(user.UserId, title, body);
+                        _logger.LogInformation("Push sent to user {UserId} for reservation {ReservationId}.", user.UserId, reservation.ReservationId);
+                        SaveNotification(notifications, user.UserId, title, body);
+                        _notifiedReservationIds.Add(reservation.ReservationId);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to send push notification to user {UserId}. Falling back to email if possible.", user.UserId);
+                        // Ako push nije uspio, pokušavamo email (ako postoji)
+                        if (!string.IsNullOrWhiteSpace(user.Email))
+                        {
+                            SendEmail(user.Email, user.Username, title, body);
+                            _logger.LogInformation("Fallback email sent to user {UserId} for reservation {ReservationId}.", user.UserId, reservation.ReservationId);
+                            SaveNotification(notifications, user.UserId, title, body);
+                            _notifiedReservationIds.Add(reservation.ReservationId);
+                        }
+                    }
                 }
                 else if (!string.IsNullOrWhiteSpace(user.Email))
                 {

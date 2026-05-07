@@ -30,13 +30,27 @@ namespace IdleReservationsBE.Services
             if (fcmToken == null)
                 return;
 
-            var message = new Message
+            try
             {
-                Token = fcmToken.Token,
-                Notification = new FirebaseAdmin.Messaging.Notification { Title = title, Body = body }
-            };
+                var message = new Message
+                {
+                    Token = fcmToken.Token,
+                    Notification = new FirebaseAdmin.Messaging.Notification { Title = title, Body = body }
+                };
 
-            await FirebaseMessaging.DefaultInstance.SendAsync(message);
+                await FirebaseMessaging.DefaultInstance.SendAsync(message);
+            }
+            catch (FirebaseMessagingException ex)
+            {
+                // Ako token više nije važeći (npr. aplikacija deinstalirana), brišemo ga iz baze
+                if (ex.MessagingErrorCode == MessagingErrorCode.Unregistered ||
+                    ex.MessagingErrorCode == MessagingErrorCode.InvalidArgument)
+                {
+                    _tokenRepo.Delete(userId);
+                    _tokenRepo.Save();
+                }
+                throw;
+            }
         }
     }
 }
